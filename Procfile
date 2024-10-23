@@ -1,0 +1,1 @@
+web: gunicorn mymedbook.wsgi --log-file -

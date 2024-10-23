@@ -95,7 +95,16 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
-    'UNAUTHENTICATED_USER': None
+    'UNAUTHENTICATED_USER': None,
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ],
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.FormParser',
+        'rest_framework.parsers.MultiPartParser'
+    ],
+    'EXCEPTION_HANDLER': 'rest_framework.views.exception_handler'
 }
 
 # OAuth2 Settings
@@ -139,3 +148,13 @@ LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
+
+from django.urls import re_path
+
+PUBLIC_PATHS = [
+    re_path(r'^$'),  # Root path
+    re_path(r'^health/$'),  # Health check
+    re_path(r'^auth/token/$'),  # Token endpoint
+    re_path(r'^favicon.ico$'),  # Favicon
+    re_path(r'^static/.*$'),  # Static files
+]

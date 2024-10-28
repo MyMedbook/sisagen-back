@@ -1,4 +1,6 @@
-from django.urls import resolve
+# authentication/middleware.py
+import re
+# authentication/middleware.py
 from django.conf import settings
 
 class TokenAuthMiddleware:
@@ -6,13 +8,12 @@ class TokenAuthMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        # Check if the current path matches any public paths
+        # Get path without leading slash
         path = request.path_info.lstrip('/')
         
         # Skip authentication for public paths
-        for public_path in getattr(settings, 'PUBLIC_PATHS', []):
-            if public_path.match(path):
-                return self.get_response(request)
+        if settings.PUBLIC_PATHS.match(path):
+            return self.get_response(request)
         
         response = self.get_response(request)
         return response

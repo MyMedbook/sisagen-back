@@ -1,7 +1,7 @@
-# mymedbook/settings.py
 import os
 from pathlib import Path
 from mongoengine import connect
+import re
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -149,12 +149,26 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-from django.urls import re_path
 
+# Define public paths using raw regex patterns
 PUBLIC_PATHS = [
-    re_path(r'^$'),  # Root path
-    re_path(r'^health/$'),  # Health check
-    re_path(r'^auth/token/$'),  # Token endpoint
-    re_path(r'^favicon.ico$'),  # Favicon
-    re_path(r'^static/.*$'),  # Static files
+    r'^$',                # Root path
+    r'^health/?$',        # Health check
+    r'^auth/token/?$',    # Token endpoint
+    r'^favicon\.ico$',    # Favicon
+    r'^static/.*$',       # Static files
+    r'^admin/.*$',        # Admin interface
+    r'^media/.*$',        # Media files
 ]
+
+# Update the middleware to use the compiled patterns
+# Update the middleware to use the compiled patterns
+class PublicPathsList:
+    def __init__(self, patterns):
+        self.patterns = [re.compile(pattern) for pattern in patterns]
+    
+    def match(self, path):
+        return any(pattern.match(path) for pattern in self.patterns)
+
+# Initialize the public paths
+PUBLIC_PATHS = PublicPathsList(PUBLIC_PATHS)

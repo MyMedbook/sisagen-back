@@ -37,6 +37,13 @@ MIDDLEWARE = [
     'authentication.middleware.TokenAuthMiddleware',
 ]
 
+CORS_ALLOWED_ORIGINS = [
+    "https://medbooksrl.onrender.com",
+    "http://medbooksrl.onrender.com"
+]
+CORS_ALLOW_CREDENTIALS = True
+CORS_EXPOSE_HEADERS = ['Content-Type', 'Authorization']
+
 ROOT_URLCONF = 'mymedbook.urls'
 
 TEMPLATES = [
@@ -152,13 +159,15 @@ USE_TZ = True
 
 # Define public paths using raw regex patterns
 PUBLIC_PATHS = [
-    r'^$',                # Root path
-    r'^health/?$',        # Health check
-    r'^auth/token/?$',    # Token endpoint
-    r'^favicon\.ico$',    # Favicon
-    r'^static/.*$',       # Static files
-    r'^admin/.*$',        # Admin interface
-    r'^media/.*$',        # Media files
+    r'^$',
+    r'^health/?$',
+    r'^auth/token/?$',
+    r'^auth/verify/?$',  # Add verify endpoint
+    r'^favicon\.ico$',
+    r'^static/.*$',
+    r'^admin/.*$',
+    r'^media/.*$',
+    r'^api/.*$'  # Temporarily allow all API endpoints for testing
 ]
 
 # Update the middleware to use the compiled patterns

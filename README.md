@@ -1,6 +1,17 @@
 # MyMedBook - Sisagen Cardio
-
-# Anamnesi API Endpoints - Complete Examples
+## Obtaining Token
+```http
+POST https://medbooksrl.onrender.com/auth/token/
+```
+Body Request (x-www-form-urlencoded)
+```json
+grant_type:password
+username:xxxx@gmail.com
+password: ******
+client_id:it.netfarm.mymedbook.web
+client_secret:
+```
+## Anamnesi API Endpoints - Complete Examples
 
 ## Common Headers for All Requests
 ```

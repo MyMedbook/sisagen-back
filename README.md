@@ -522,7 +522,7 @@ device:
 
 ### DELETE http://localhost:8000/api/pedigree/699/
 
-#ECG
+# ECG
 
 ### Valid Values : 
 ritmo:

@@ -74,7 +74,7 @@ GET/PUT/POST /anamnesi/sintomatologia/
 GET/PUT/POST /anamnesi/coinvolgimento-multisistemico/
 {
     "sistema_nervoso": enum["no", "difficolta_apprendimento", "ritardo_psicomotorio", "atassia", "parestesie"],
-    "occhio": enum["no", "ipovisione", "ptosi_palpebrale"],
+    "occhio": enum["no", "ipovisione", ""],
     "orecchio": enum["no", "difficolta_apprendimento", "ritardo_psicomotorio", "atassia"],
     "sistema_muscoloscheletrico": enum["no", "miotonia", "tunnel_carpale_bilaterale", "debolezza_muscolare"],
     "pelle": enum["no", "lentiggini", "angiocheratoma", "cheratodermia"]
@@ -214,3 +214,7 @@ Would you like me to:
 1. Add validation rules for specific fields?
 2. Add more detailed documentation for any section?
 3. Show implementation examples for specific endpoints?
+
+
+
+

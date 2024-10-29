@@ -433,6 +433,7 @@ device:
 ### GET http://localhost:8000/api/pedigree/699/
 
 ### PUT REQUEST
+```json
 {
     "paziente_id": 699,
     "operatore_id": 1992,
@@ -517,6 +518,7 @@ device:
         }
     ]
 }
+```
 
 ### DELETE http://localhost:8000/api/pedigree/699/
 
@@ -550,7 +552,7 @@ rv.stato:
 
 ### PUT REQUEST http://localhost:8000/api/ecg/699/
 Request Body: 
-```
+```json
 {
     "paziente_id": 699,
     "operatore_id": 1992,
@@ -659,7 +661,7 @@ gene.tipo:
 
 ### PUT REQUEST http://localhost:8000/api/genetica/699/
 
-```
+```json
 {
     "operatore_id": 1992,
     "status": "complete",
@@ -695,7 +697,7 @@ Gradiente Pressorio constraints:
 ### GET http://localhost:8000/api/ecocardiogramma/699/
 
 ### PUT http://localhost:8000/api/ecocardiogramma/699/
-```
+```json
 {
     "operatore_id": 1992,
     "status": "complete",
@@ -746,7 +748,7 @@ Gradiente Pressorio constraints:
 ### GET http://localhost:8000/api/esami-laboratorio/699/
 
 ### PUT http://localhost:8000/api/esami-laboratorio/699/
-```
+```json
 {
     "operatore_id": 1992,
     "status": "complete",

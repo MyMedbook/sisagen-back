@@ -1,0 +1,276 @@
+{
+    "paziente_id": 699,
+    "operatore_id": 1992,
+    "status": "draft",
+    "created_at": "2024-11-15T10:44:40.008795Z",
+    "updated_at": "2024-11-15T10:44:40.502434Z",
+    "report_id": 2,
+    "fattori_rischio": {
+        "paziente_id": 699,
+        "operatore_id": 1992,
+        "status": "complete",
+        "created_at": "2024-10-28T11:29:03.869000Z",
+        "updated_at": "2024-10-28T11:29:03.869000Z",
+        "ipertensione_arteriosa": {
+            "presente": true,
+            "anni": 5
+        },
+        "dislipidemia": {
+            "tipo": "ipercolesterolemia",
+            "anni": 3
+        },
+        "diabete_mellito": {
+            "presente": false,
+            "anni": 0
+        },
+        "fumo": {
+            "stato": "passato",
+            "anni": 10,
+            "anni_smesso": 2
+        },
+        "obesita": "normopeso"
+    },
+    "comorbidita": {
+        "paziente_id": 699,
+        "operatore_id": 1992,
+        "status": "complete",
+        "created_at": "2024-10-28T11:32:56.414000Z",
+        "updated_at": "2024-11-15T10:44:29.088000Z",
+        "malattia_renale_cronica": {
+            "presente": true,
+            "stadio": 3
+        },
+        "bpco": false,
+        "steatosi_epatica": {
+            "presente": true,
+            "grado": "moderata"
+        },
+        "anemia": {
+            "presente": true,
+            "tipo": "sideropenica"
+        },
+        "distiroidismo": "ipotiroidismo"
+    },
+    "sintomatologia": {
+        "paziente_id": 699,
+        "operatore_id": 1992,
+        "status": "draft",
+        "created_at": "2024-10-28T11:34:54.943000Z",
+        "updated_at": "2024-10-28T11:34:54.943000Z",
+        "dolore_toracico": {
+            "presente": true,
+            "tipo": "tipico",
+            "frequenza": "frequente"
+        },
+        "dispnea": {
+            "presente": true,
+            "classe_nyha": 2
+        },
+        "cardiopalmo": {
+            "presente": true,
+            "frequenza": "frequente"
+        },
+        "sincope": {
+            "tipo": "sincope",
+            "verosimile": "vasovagale"
+        },
+        "altro": {
+            "presente": true,
+            "descrizione": "Affaticamento cronico e vertigini occasionali"
+        }
+    },
+    "coinvolgimento_multisistemico": {
+        "paziente_id": 699,
+        "operatore_id": 1992,
+        "status": "draft",
+        "created_at": "2024-10-28T11:37:29.921000Z",
+        "updated_at": "2024-11-15T10:33:32.843000Z",
+        "sistema_nervoso": "difficolta_apprendimento",
+        "occhio": "ptosi_palpebrale",
+        "orecchio": "difficolta_apprendimento",
+        "sistema_muscoloscheletrico": "debolezza_muscolare",
+        "pelle": "angiocheratoma"
+    },
+    "terapia_farmacologica": {
+        "paziente_id": 699,
+        "operatore_id": 1992,
+        "status": "complete",
+        "created_at": "2024-10-28T11:38:40.142000Z",
+        "updated_at": "2024-10-28T11:38:40.142000Z",
+        "farmaci": [
+            "Metoprololo 100mg 1cp/die mattino",
+            "Ramipril 10mg 1cp/die sera",
+            "Furosemide 25mg 1cp a giorni alterni",
+            "Warfarin secondo schema",
+            "Levotiroxina 75mcg 1cp/die mattino a digiuno",
+            "Pantoprazolo 20mg 1cp/die",
+            "Simvastatina 40mg 1cp/die sera"
+        ]
+    },
+    "ecg": {
+        "paziente_id": 699,
+        "operatore_id": 1992,
+        "status": "complete",
+        "created_at": "2024-10-28T12:01:24.810000Z",
+        "updated_at": "2024-10-28T12:01:24.810000Z",
+        "ritmo": "ritmo_sinusale",
+        "pr": "nei_limiti",
+        "qrs": "bbd",
+        "rv": {
+            "stato": "nei_limiti",
+            "dettagli": "Nessuna alterazione significativa"
+        }
+    },
+    "ecocardiogramma": {
+        "paziente_id": 699,
+        "operatore_id": 1992,
+        "status": "complete",
+        "created_at": "2024-10-29T09:12:30.167000Z",
+        "updated_at": "2024-10-29T09:12:30.168000Z",
+        "diametro_telediastolico_vs": 45.5,
+        "spessore_siv": 11.2,
+        "spessore_pp": 10.1,
+        "diametro_anteroposteriore_as": 38.0,
+        "volume_as": 52.0,
+        "radice_aortica": 32.5,
+        "aorta_ascendente": 34.0,
+        "fe": 65.0,
+        "gp_aortico": {
+            "medio": 12.0,
+            "max": 24.0
+        },
+        "gp_mitralico": {
+            "medio": 3.5,
+            "max": 7.0
+        },
+        "paps": 28.0,
+        "lvot": 2.1
+    },
+    "esami_laboratorio": {
+        "paziente_id": 699,
+        "operatore_id": 1992,
+        "status": "complete",
+        "created_at": "2024-10-29T09:13:41.378000Z",
+        "updated_at": "2024-10-29T09:13:41.379000Z",
+        "cpk": 150.0,
+        "troponina_hs": 0.012,
+        "nt_pro_bnp": 125.0,
+        "d_dimero": 250.0,
+        "creatinina": 0.9,
+        "azotemia": 35.0,
+        "na": 140.0,
+        "k": 4.2,
+        "gfr": 90.0,
+        "albuminuria": 15.0,
+        "alt": 25.0,
+        "ast": 22.0,
+        "bilirubina": {
+            "totale": 1.2,
+            "diretta": 0.3,
+            "indiretta": 0.9
+        },
+        "ggt": 30.0,
+        "alfa_galattosidasi": 3.2,
+        "componente_monoclonale_sierica": "Assente",
+        "immunofissazione_sierica": "Negativa",
+        "immunofissazione_urinaria": "Negativa"
+    },
+    "genetica": {
+        "paziente_id": 699,
+        "operatore_id": 1992,
+        "status": "complete",
+        "created_at": "2024-10-28T12:01:47.987000Z",
+        "updated_at": "2024-10-28T12:01:47.987000Z",
+        "trasmissione": "ad",
+        "gene": {
+            "nome": "MYBPC3",
+            "tipo": "patogenetica"
+        }
+    },
+    "pedigree": {
+        "paziente_id": 699,
+        "operatore_id": 1992,
+        "status": "complete",
+        "created_at": "2024-10-29T10:05:57.356000Z",
+        "updated_at": "2024-10-29T10:06:16.367000Z",
+        "padre": {
+            "stessa_malattia": false,
+            "eta_esordio": null,
+            "severita": null,
+            "morte_improvvisa": false,
+            "eta_morte": null,
+            "device": "no"
+        },
+        "madre": {
+            "stessa_malattia": true,
+            "eta_esordio": 44,
+            "severita": "lieve",
+            "morte_improvvisa": false,
+            "eta_morte": null,
+            "device": "pm"
+        },
+        "nonno_paterno": {
+            "stessa_malattia": true,
+            "eta_esordio": 60,
+            "severita": "severa",
+            "morte_improvvisa": true,
+            "eta_morte": 65,
+            "device": "icd"
+        },
+        "nonna_paterna": {
+            "stessa_malattia": false,
+            "eta_esordio": null,
+            "severita": null,
+            "morte_improvvisa": false,
+            "eta_morte": null,
+            "device": "no"
+        },
+        "nonno_materno": {
+            "stessa_malattia": false,
+            "eta_esordio": null,
+            "severita": null,
+            "morte_improvvisa": false,
+            "eta_morte": null,
+            "device": "no"
+        },
+        "nonna_materna": {
+            "stessa_malattia": false,
+            "eta_esordio": null,
+            "severita": null,
+            "morte_improvvisa": false,
+            "eta_morte": null,
+            "device": "no"
+        },
+        "fratelli": [
+            {
+                "stessa_malattia": true,
+                "eta_esordio": 30,
+                "severita": "lieve",
+                "morte_improvvisa": false,
+                "eta_morte": null,
+                "device": "no",
+                "numero": 1
+            },
+            {
+                "stessa_malattia": false,
+                "eta_esordio": null,
+                "severita": null,
+                "morte_improvvisa": false,
+                "eta_morte": null,
+                "device": "no",
+                "numero": 2
+            }
+        ],
+        "figli": [
+            {
+                "stessa_malattia": true,
+                "eta_esordio": 15,
+                "severita": "lieve",
+                "morte_improvvisa": false,
+                "eta_morte": null,
+                "device": "no",
+                "numero": 1
+            }
+        ]
+    }
+}

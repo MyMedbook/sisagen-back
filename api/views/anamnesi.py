@@ -5,10 +5,11 @@ from rest_framework.exceptions import NotFound, ValidationError
 from datetime import datetime
 import logging
 
+from api.models.anamnesi import Altro, Anemia, Cardiopalmo, DiabeteMellito, Dislipidemia, Dispnea, DoloreToracico, Fumo, IpertensioneArteriosa, MalattiaRenaleCronica, Sincope, SteatosiEpatica
 from api.models import (
     FattoriRischio, Comorbidita, Sintomatologia,
-    CoinvolgimentoMultisistemico, TerapiaFarmacologica
-)
+    CoinvolgimentoMultisistemico, TerapiaFarmacologica,
+   )
 from api.serializers import (
     FattoriRischioSer, ComorbiditaSer, SintomatologiaSer,
     CoinvolgimentoMultisistemicoSer, TerapiaFarmacologicaSer,
@@ -63,43 +64,6 @@ class BaseAnamnesisView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-    def post(self, request, paziente_id):
-        """Create new anamnesis record"""
-        try:
-            pid = self.validate_paziente_id(paziente_id)
-            
-            # Check if record already exists using MongoEngine syntax
-            if self.check_exists(pid):
-                return Response(
-                    {"error": f"{self.model.__name__} already exists for this patient"},
-                    status=status.HTTP_409_CONFLICT
-                )
-            
-            # Prepare data
-            data = request.data.copy()
-            data['paziente_id'] = pid
-            
-            serializer = self.serializer_class(data=data)
-            if not serializer.is_valid():
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-            
-            # Create and save instance
-            instance = self.model(**serializer.validated_data)
-            instance.save()
-            
-            return Response(
-                self.serializer_class(instance).data, 
-                status=status.HTTP_201_CREATED
-            )
-        except ValidationError as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            logger.error(f"Error in POST: {str(e)}")
-            return Response(
-                {"error": "Internal server error"}, 
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
-
     def put(self, request, paziente_id):
         """Update existing anamnesis record"""
         try:
@@ -111,14 +75,50 @@ class BaseAnamnesisView(APIView):
             data = request.data.copy()
             data['paziente_id'] = instance.paziente_id
             
-            serializer = self.serializer_class(instance, data=data)
+            serializer = self.serializer_class(data=data)
             if not serializer.is_valid():
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             
-            # Update instance
-            for key, value in serializer.validated_data.items():
-                setattr(instance, key, value)
+            validated_data = serializer.validated_data
+
+            # Update instance based on model type
+            if isinstance(instance, FattoriRischio):
+                instance.ipertensione_arteriosa = IpertensioneArteriosa(**validated_data['ipertensione_arteriosa'])
+                instance.dislipidemia = Dislipidemia(**validated_data['dislipidemia'])
+                instance.diabete_mellito = DiabeteMellito(**validated_data['diabete_mellito'])
+                instance.fumo = Fumo(**validated_data['fumo'])
+                instance.obesita = validated_data['obesita']
+            
+            elif isinstance(instance, Comorbidita):
+                instance.malattia_renale_cronica = MalattiaRenaleCronica(**validated_data['malattia_renale_cronica'])
+                instance.bpco = validated_data['bpco']
+                instance.steatosi_epatica = SteatosiEpatica(**validated_data['steatosi_epatica'])
+                instance.anemia = Anemia(**validated_data['anemia'])
+                instance.distiroidismo = validated_data['distiroidismo']
+            
+            elif isinstance(instance, Sintomatologia):
+                instance.dolore_toracico = DoloreToracico(**validated_data['dolore_toracico'])
+                instance.dispnea = Dispnea(**validated_data['dispnea'])
+                instance.cardiopalmo = Cardiopalmo(**validated_data['cardiopalmo'])
+                instance.sincope = Sincope(**validated_data['sincope'])
+                instance.altro = Altro(**validated_data['altro'])
+            
+            elif isinstance(instance, CoinvolgimentoMultisistemico):
+                instance.sistema_nervoso = validated_data['sistema_nervoso']
+                instance.occhio = validated_data['occhio']
+                instance.orecchio = validated_data['orecchio']
+                instance.sistema_muscoloscheletrico = validated_data['sistema_muscoloscheletrico']
+                instance.pelle = validated_data['pelle']
+            
+            elif isinstance(instance, TerapiaFarmacologica):
+                instance.farmaci = validated_data['farmaci']
+
+            # Update common fields
+            instance.operatore_id = validated_data['operatore_id']
+            instance.status = validated_data['status']
             instance.updated_at = datetime.utcnow()
+            
+            # Save the instance
             instance.save()
             
             return Response(self.serializer_class(instance).data)
@@ -148,6 +148,27 @@ class BaseAnamnesisView(APIView):
                 {"error": "Internal server error"}, 
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+# Concrete view classes
+class FattoriRischioView(BaseAnamnesisView):
+    model = FattoriRischio
+    serializer_class = FattoriRischioSer
+
+class ComorbiditaView(BaseAnamnesisView):
+    model = Comorbidita
+    serializer_class = ComorbiditaSer
+
+class SintomatologiaView(BaseAnamnesisView):
+    model = Sintomatologia
+    serializer_class = SintomatologiaSer
+
+class CoinvolgimentoMultisistemicoView(BaseAnamnesisView):
+    model = CoinvolgimentoMultisistemico
+    serializer_class = CoinvolgimentoMultisistemicoSer
+
+class TerapiaFarmacologicaView(BaseAnamnesisView):
+    model = TerapiaFarmacologica
+    serializer_class = TerapiaFarmacologicaSer
 
 class AnamnesiCompletaView(APIView):
     """View for handling complete anamnesis records"""
@@ -203,24 +224,3 @@ class AnamnesiCompletaView(APIView):
                 {"error": "Internal server error"}, 
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-
-# Concrete view classes remain the same
-class FattoriRischioView(BaseAnamnesisView):
-    model = FattoriRischio
-    serializer_class = FattoriRischioSer
-
-class ComorbiditaView(BaseAnamnesisView):
-    model = Comorbidita
-    serializer_class = ComorbiditaSer
-
-class SintomatologiaView(BaseAnamnesisView):
-    model = Sintomatologia
-    serializer_class = SintomatologiaSer
-
-class CoinvolgimentoMultisistemicoView(BaseAnamnesisView):
-    model = CoinvolgimentoMultisistemico
-    serializer_class = CoinvolgimentoMultisistemicoSer
-
-class TerapiaFarmacologicaView(BaseAnamnesisView):
-    model = TerapiaFarmacologica
-    serializer_class = TerapiaFarmacologicaSer

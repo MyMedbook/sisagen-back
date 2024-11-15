@@ -1,11 +1,7 @@
-# api/urls.py
 from django.urls import path, register_converter
 from api.views import (
-    FattoriRischioView,
-    ComorbiditaView,
-    SintomatologiaView,
-    CoinvolgimentoMultisistemicoView,
-    TerapiaFarmacologicaView,
+    FattoriRischioView, ComorbiditaView, SintomatologiaView,
+    CoinvolgimentoMultisistemicoView, TerapiaFarmacologicaView,
     AnamnesiCompletaView
 )
 from api.views.ecg import ECGView
@@ -13,6 +9,7 @@ from api.views.ecocardiogramma import EcocardiogrammaView
 from api.views.esami_laboratorio import EsamiLaboratorioView
 from api.views.genetica import GeneticaView
 from api.views.pedigree import PedigreeView
+from api.views.report import ReportView, QuickReportView
 
 # Custom path converter for positive integers
 class PositiveIntConverter:
@@ -38,45 +35,13 @@ class AnamnesiURLs:
         'terapia-farmacologica': TerapiaFarmacologicaView,
     }
 
-class PedigreeURLs:
-    BASE = 'pedigree'
-    SECTIONS = {
-        '': PedigreeView  # Empty string as key for base endpoint
-    }
-
-class GeneticaURLs:
-    BASE = 'genetica'
-    SECTIONS = {
-        '': GeneticaView  # Empty string as key for base endpoint
-    }
-
-class ECGURLs:
-    BASE = 'ecg'
-    SECTIONS = {
-        '': ECGView  # Empty string as key for base endpoint
-    }
-
-class EsamiLaboratorioURLs:
-    BASE = 'esami-laboratorio'
-    SECTIONS = {
-        '': EsamiLaboratorioView
-    }
-
-class EcocardiogrammaURLs:
-    BASE = 'ecocardiogramma'
-    SECTIONS = {
-        '': EcocardiogrammaView
-    }
-
-
-# Generate URL patterns
 urlpatterns = [
     # Individual anamnesi section endpoints
     *[
         path(
             f'{AnamnesiURLs.BASE}/{section}/<pos_int:paziente_id>/',
             view.as_view(),
-            name=section
+            name=f'{section}-list'
         )
         for section, view in AnamnesiURLs.SECTIONS.items()
     ],
@@ -88,53 +53,17 @@ urlpatterns = [
         name='anamnesi-completa'
     ),
     
-    # Pedigree endpoints
-    *[
-        path(
-            f'{PedigreeURLs.BASE}/{section}<pos_int:paziente_id>/',
-            view.as_view(),
-            name=f'pedigree{"-"+section if section else ""}'
-        )
-        for section, view in PedigreeURLs.SECTIONS.items()
-    ],
+    # Other endpoints
+    path('ecg/<pos_int:paziente_id>/', ECGView.as_view(), name='ecg-list'),
+    path('ecocardiogramma/<pos_int:paziente_id>/', EcocardiogrammaView.as_view(), name='ecocardiogramma-list'),
+    path('esami-laboratorio/<pos_int:paziente_id>/', EsamiLaboratorioView.as_view(), name='esami-laboratorio-list'),
+    path('genetica/<pos_int:paziente_id>/', GeneticaView.as_view(), name='genetica-list'),
+    path('pedigree/<pos_int:paziente_id>/', PedigreeView.as_view(), name='pedigree-list'),
     
-    # Genetica endpoints
-    *[
-        path(
-            f'{GeneticaURLs.BASE}/{section}<pos_int:paziente_id>/',
-            view.as_view(),
-            name=f'genetica{"-"+section if section else ""}'
-        )
-        for section, view in GeneticaURLs.SECTIONS.items()
-    ],
+    # Report endpoints
+    path('report/<pos_int:paziente_id>/', ReportView.as_view(), name='report-list'),
+    path('report/<pos_int:paziente_id>/<pos_int:report_id>/', ReportView.as_view(), name='report-detail'),
     
-    # ECG endpoints
-    *[
-        path(
-            f'{ECGURLs.BASE}/{section}<pos_int:paziente_id>/',
-            view.as_view(),
-            name=f'ecg{"-"+section if section else ""}'
-        )
-        for section, view in ECGURLs.SECTIONS.items()
-    ],
-    # Esami Laboratorio endpoints
-        *[
-        path(
-            f'{EsamiLaboratorioURLs.BASE}/{section}<pos_int:paziente_id>/',
-            view.as_view(),
-            name=f'esami-laboratorio{"-"+section if section else ""}'
-        )
-        for section, view in EsamiLaboratorioURLs.SECTIONS.items()
-    ],
-    
-    # Ecocardiogramma endpoints
-    *[
-        path(
-            f'{EcocardiogrammaURLs.BASE}/{section}<pos_int:paziente_id>/',
-            view.as_view(),
-            name=f'ecocardiogramma{"-"+section if section else ""}'
-        )
-        for section, view in EcocardiogrammaURLs.SECTIONS.items()
-    ],
-
+    # Quick report endpoint
+    path('quickreport/<pos_int:paziente_id>/', QuickReportView.as_view(), name='quick-report-list'),
 ]

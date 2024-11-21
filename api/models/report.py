@@ -20,6 +20,10 @@ class Report(BaseDocument):
     Report model that collects the latest values from all sections
     """
     report_id = IntField(required=True)  # Sequential report ID per patient
+    paziente_nome = StringField(required=True)
+    paziente_cognome = StringField(required=True)
+    operatore_nome = StringField(required=True)
+    operatore_cognome = StringField(required=True)
     
     # References to the actual documents
     fattori_rischio = ReferenceField(FattoriRischio)

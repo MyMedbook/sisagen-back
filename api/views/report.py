@@ -63,6 +63,10 @@ class ReportView(APIView):
             report = Report(
                 paziente_id=paziente_id,
                 operatore_id=request.data.get('operatore_id'),
+                paziente_nome=request.data.get('paziente_nome'),
+                paziente_cognome=request.data.get('paziente_cognome'),
+                operatore_nome=request.data.get('operatore_nome'),
+                operatore_cognome=request.data.get('operatore_cognome'),
                 report_id=Report.get_next_report_id(paziente_id)
             )
 
@@ -158,7 +162,12 @@ class QuickReportAllView(APIView):
             for report in reports:
                 report_data = {
                     'report_id': report.report_id,
+                    'paziente_id': report.paziente_id,
+                    'paziente_nome': report.paziente_nome,
+                    'paziente_cognome': report.paziente_cognome,
                     'operatore_id': report.operatore_id,
+                    'operatore_nome': report.operatore_nome,
+                    'operatore_cognome': report.operatore_cognome,
                     'status': report.status,
                     'created_at': report.created_at,
                     'updated_at': report.updated_at
@@ -169,6 +178,8 @@ class QuickReportAllView(APIView):
             result = [
                 {
                     'paziente_id': paziente_id,
+                    'paziente_nome': reports_list[0]['paziente_nome'],
+                    'paziente_cognome': reports_list[0]['paziente_cognome'],
                     'reports': reports_list
                 }
                 for paziente_id, reports_list in grouped_reports.items()

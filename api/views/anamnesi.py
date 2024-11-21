@@ -65,64 +65,122 @@ class BaseAnamnesisView(APIView):
             )
 
     def put(self, request, paziente_id):
-        """Update existing anamnesis record"""
+        """Create or update anamnesis record"""
         try:
-            instance = self.get_object(paziente_id)
-            if not instance:
-                raise NotFound(f"{self.model.__name__} not found for patient {paziente_id}")
+            pid = self.validate_paziente_id(paziente_id)
             
             # Prepare data
             data = request.data.copy()
-            data['paziente_id'] = instance.paziente_id
+            data['paziente_id'] = pid
             
+            # Validate data with serializer
             serializer = self.serializer_class(data=data)
             if not serializer.is_valid():
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             
             validated_data = serializer.validated_data
+            instance = self.get_object(pid)
+            
+            if instance:
+                # Update existing record
+                if isinstance(instance, FattoriRischio):
+                    instance.ipertensione_arteriosa = IpertensioneArteriosa(**validated_data['ipertensione_arteriosa'])
+                    instance.dislipidemia = Dislipidemia(**validated_data['dislipidemia'])
+                    instance.diabete_mellito = DiabeteMellito(**validated_data['diabete_mellito'])
+                    instance.fumo = Fumo(**validated_data['fumo'])
+                    instance.obesita = validated_data['obesita']
+                
+                elif isinstance(instance, Comorbidita):
+                    instance.malattia_renale_cronica = MalattiaRenaleCronica(**validated_data['malattia_renale_cronica'])
+                    instance.bpco = validated_data['bpco']
+                    instance.steatosi_epatica = SteatosiEpatica(**validated_data['steatosi_epatica'])
+                    instance.anemia = Anemia(**validated_data['anemia'])
+                    instance.distiroidismo = validated_data['distiroidismo']
+                
+                elif isinstance(instance, Sintomatologia):
+                    instance.dolore_toracico = DoloreToracico(**validated_data['dolore_toracico'])
+                    instance.dispnea = Dispnea(**validated_data['dispnea'])
+                    instance.cardiopalmo = Cardiopalmo(**validated_data['cardiopalmo'])
+                    instance.sincope = Sincope(**validated_data['sincope'])
+                    instance.altro = Altro(**validated_data['altro'])
+                
+                elif isinstance(instance, CoinvolgimentoMultisistemico):
+                    instance.sistema_nervoso = validated_data['sistema_nervoso']
+                    instance.occhio = validated_data['occhio']
+                    instance.orecchio = validated_data['orecchio']
+                    instance.sistema_muscoloscheletrico = validated_data['sistema_muscoloscheletrico']
+                    instance.pelle = validated_data['pelle']
+                
+                elif isinstance(instance, TerapiaFarmacologica):
+                    instance.farmaci = validated_data['farmaci']
 
-            # Update instance based on model type
-            if isinstance(instance, FattoriRischio):
-                instance.ipertensione_arteriosa = IpertensioneArteriosa(**validated_data['ipertensione_arteriosa'])
-                instance.dislipidemia = Dislipidemia(**validated_data['dislipidemia'])
-                instance.diabete_mellito = DiabeteMellito(**validated_data['diabete_mellito'])
-                instance.fumo = Fumo(**validated_data['fumo'])
-                instance.obesita = validated_data['obesita']
+                # Update common fields
+                instance.operatore_id = validated_data['operatore_id']
+                instance.status = validated_data['status']
+                instance.updated_at = datetime.utcnow()
+                
+                instance.save()
+                response_status = status.HTTP_200_OK
+            else:
+                # Create new instance based on model type
+                if self.model == FattoriRischio:
+                    instance = FattoriRischio(
+                        paziente_id=pid,
+                        operatore_id=validated_data['operatore_id'],
+                        status=validated_data['status'],
+                        ipertensione_arteriosa=IpertensioneArteriosa(**validated_data['ipertensione_arteriosa']),
+                        dislipidemia=Dislipidemia(**validated_data['dislipidemia']),
+                        diabete_mellito=DiabeteMellito(**validated_data['diabete_mellito']),
+                        fumo=Fumo(**validated_data['fumo']),
+                        obesita=validated_data['obesita']
+                    )
+                elif self.model == Comorbidita:
+                    instance = Comorbidita(
+                        paziente_id=pid,
+                        operatore_id=validated_data['operatore_id'],
+                        status=validated_data['status'],
+                        malattia_renale_cronica=MalattiaRenaleCronica(**validated_data['malattia_renale_cronica']),
+                        bpco=validated_data['bpco'],
+                        steatosi_epatica=SteatosiEpatica(**validated_data['steatosi_epatica']),
+                        anemia=Anemia(**validated_data['anemia']),
+                        distiroidismo=validated_data['distiroidismo']
+                    )
+                elif self.model == Sintomatologia:
+                    instance = Sintomatologia(
+                        paziente_id=pid,
+                        operatore_id=validated_data['operatore_id'],
+                        status=validated_data['status'],
+                        dolore_toracico=DoloreToracico(**validated_data['dolore_toracico']),
+                        dispnea=Dispnea(**validated_data['dispnea']),
+                        cardiopalmo=Cardiopalmo(**validated_data['cardiopalmo']),
+                        sincope=Sincope(**validated_data['sincope']),
+                        altro=Altro(**validated_data['altro'])
+                    )
+                elif self.model == CoinvolgimentoMultisistemico:
+                    instance = CoinvolgimentoMultisistemico(
+                        paziente_id=pid,
+                        operatore_id=validated_data['operatore_id'],
+                        status=validated_data['status'],
+                        sistema_nervoso=validated_data['sistema_nervoso'],
+                        occhio=validated_data['occhio'],
+                        orecchio=validated_data['orecchio'],
+                        sistema_muscoloscheletrico=validated_data['sistema_muscoloscheletrico'],
+                        pelle=validated_data['pelle']
+                    )
+                elif self.model == TerapiaFarmacologica:
+                    instance = TerapiaFarmacologica(
+                        paziente_id=pid,
+                        operatore_id=validated_data['operatore_id'],
+                        status=validated_data['status'],
+                        farmaci=validated_data['farmaci']
+                    )
+                
+                instance.save()
+                response_status = status.HTTP_201_CREATED
             
-            elif isinstance(instance, Comorbidita):
-                instance.malattia_renale_cronica = MalattiaRenaleCronica(**validated_data['malattia_renale_cronica'])
-                instance.bpco = validated_data['bpco']
-                instance.steatosi_epatica = SteatosiEpatica(**validated_data['steatosi_epatica'])
-                instance.anemia = Anemia(**validated_data['anemia'])
-                instance.distiroidismo = validated_data['distiroidismo']
+            return Response(self.serializer_class(instance).data, status=response_status)
             
-            elif isinstance(instance, Sintomatologia):
-                instance.dolore_toracico = DoloreToracico(**validated_data['dolore_toracico'])
-                instance.dispnea = Dispnea(**validated_data['dispnea'])
-                instance.cardiopalmo = Cardiopalmo(**validated_data['cardiopalmo'])
-                instance.sincope = Sincope(**validated_data['sincope'])
-                instance.altro = Altro(**validated_data['altro'])
-            
-            elif isinstance(instance, CoinvolgimentoMultisistemico):
-                instance.sistema_nervoso = validated_data['sistema_nervoso']
-                instance.occhio = validated_data['occhio']
-                instance.orecchio = validated_data['orecchio']
-                instance.sistema_muscoloscheletrico = validated_data['sistema_muscoloscheletrico']
-                instance.pelle = validated_data['pelle']
-            
-            elif isinstance(instance, TerapiaFarmacologica):
-                instance.farmaci = validated_data['farmaci']
-
-            # Update common fields
-            instance.operatore_id = validated_data['operatore_id']
-            instance.status = validated_data['status']
-            instance.updated_at = datetime.utcnow()
-            
-            # Save the instance
-            instance.save()
-            
-            return Response(self.serializer_class(instance).data)
-        except (ValidationError, NotFound) as e:
+        except ValidationError as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             logger.error(f"Error in PUT: {str(e)}")

@@ -89,28 +89,27 @@ Response (200 OK):
 ### PUT Request
 ```http
 PUT http://localhost:8000/api/anamnesi/fattori-rischio/699/
-
 {
-    "operatore_id": 1992,
-    "status": "complete",
-    "ipertensione_arteriosa": {
-        "presente": true,
-        "anni": 5
-    },
-    "dislipidemia": {
-        "tipo": "ipercolesterolemia",
-        "anni": 3
-    },
-    "diabete_mellito": {
-        "presente": false,
-        "anni": 0
-    },
-    "fumo": {
-        "stato": "passato",
-        "anni": 10,
-        "anni_smesso": 2
-    },
-    "obesita": "normopeso"
+  "operatore_id": 123,
+  "status": "draft",
+  "ipertensione_arteriosa": {
+    "presente": true,
+    "anni": 5
+  },
+  "dislipidemia": {
+    "tipo": "ipercolesterolemia",
+    "anni": 3
+  },
+  "diabete_mellito": {
+    "presente": false,
+    "anni": 0
+  },
+  "fumo": {
+    "stato": "passato",
+    "anni": 10,
+    "anni_smesso": 2
+  },
+  "obesita": "sovrappeso"
 }
 ```
 

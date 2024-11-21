@@ -179,22 +179,22 @@ Response (200 OK):
 PUT http://localhost:8000/api/anamnesi/comorbidita/699/
 
 {
-    "operatore_id": 1992,
-    "status": "complete",
-    "malattia_renale_cronica": {
-        "presente": true,
-        "stadio": 2
-    },
-    "bpco": false,
-    "steatosi_epatica": {
-        "presente": true,
-        "grado": "moderata"
-    },
-    "anemia": {
-        "presente": true,
-        "tipo": "sideropenica"
-    },
-    "distiroidismo": "ipotiroidismo"
+  "operatore_id": 123,
+  "status": "draft",
+  "malattia_renale_cronica": {
+    "presente": true,
+    "stadio": 2
+  },
+  "bpco": false,
+  "steatosi_epatica": {
+    "presente": true,
+    "grado": "moderato"
+  },
+  "anemia": {
+    "presente": true,
+    "tipo": "sideropenica"  
+  },
+  "distiroidismo": "ipotiroidismo"
 }
 ```
 

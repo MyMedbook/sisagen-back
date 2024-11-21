@@ -5,6 +5,7 @@ from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework.pagination import PageNumberPagination
 from api.models.report import Report
 from api.serializers.report import ReportSerializer, QuickReportSerializer
+from collections import defaultdict
 import logging
 
 logger = logging.getLogger(__name__)
@@ -135,6 +136,55 @@ class QuickReportView(APIView):
 
         except Exception as e:
             logger.error(f"Error in QuickReport GET: {str(e)}")
+            return Response(
+                {"error": "Internal server error"}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+class QuickReportAllView(APIView):
+    """
+    View for handling all patients' quick report metadata
+    """
+    pagination_class = ReportPagination
+
+    def get(self, request):
+        """Get all reports metadata grouped by patient"""
+        try:
+            # Get all reports ordered by patient_id and report_id
+            reports = Report.objects.order_by('paziente_id', '-report_id')
+            
+            # Group reports by patient_id
+            grouped_reports = defaultdict(list)
+            for report in reports:
+                report_data = {
+                    'report_id': report.report_id,
+                    'operatore_id': report.operatore_id,
+                    'status': report.status,
+                    'created_at': report.created_at,
+                    'updated_at': report.updated_at
+                }
+                grouped_reports[report.paziente_id].append(report_data)
+            
+            # Convert to list format for pagination
+            result = [
+                {
+                    'paziente_id': paziente_id,
+                    'reports': reports_list
+                }
+                for paziente_id, reports_list in grouped_reports.items()
+            ]
+            
+            # Apply pagination
+            paginator = self.pagination_class()
+            page = paginator.paginate_queryset(result, request)
+            
+            if page is not None:
+                return paginator.get_paginated_response(page)
+            
+            return Response(result)
+
+        except Exception as e:
+            logger.error(f"Error in QuickReportAll GET: {str(e)}")
             return Response(
                 {"error": "Internal server error"}, 
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR

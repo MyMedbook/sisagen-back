@@ -58,31 +58,30 @@ Response (200 OK):
 ```json
 {
     "status": "complete",
-    "data": {
-        "paziente_id": 699,
-        "operatore_id": 1992,
-        "status": "complete",
-        "created_at": "2024-03-20T10:30:00Z",
-        "updated_at": "2024-03-20T10:30:00Z",
-        "ipertensione_arteriosa": {
-            "presente": true,
-            "anni": 5
-        },
-        "dislipidemia": {
-            "tipo": "ipercolesterolemia",
-            "anni": 3
-        },
-        "diabete_mellito": {
-            "presente": false,
-            "anni": 0
-        },
-        "fumo": {
-            "stato": "passato",
-            "anni": 10,
-            "anni_smesso": 2
-        },
-        "obesita": "normopeso"
-    }
+    "paziente_id": 699,
+    "operatore_id": 1992,
+    "status": "complete",
+    "created_at": "2024-03-20T10:30:00Z",
+    "updated_at": "2024-03-20T10:30:00Z",
+    "ipertensione_arteriosa": {
+        "presente": true,
+        "anni": 5
+    },
+    "dislipidemia": {
+        "tipo": "ipercolesterolemia",
+        "anni": 3
+    },
+    "diabete_mellito": {
+        "presente": false,
+        "anni": 0
+    },
+    "fumo": {
+        "stato": "passato",
+        "anni": 10,
+        "anni_smesso": 2
+    },
+    "obesita": "normopeso"
+
 }
 ```
 
@@ -151,27 +150,25 @@ Response (200 OK):
 ```json
 {
     "status": "complete",
-    "data": {
-        "paziente_id": 699,
-        "operatore_id": 1992,
-        "status": "complete",
-        "created_at": "2024-03-20T10:30:00Z",
-        "updated_at": "2024-03-20T10:30:00Z",
-        "malattia_renale_cronica": {
-            "presente": true,
-            "stadio": 2
-        },
-        "bpco": false,
-        "steatosi_epatica": {
-            "presente": true,
-            "grado": "moderata"
-        },
-        "anemia": {
-            "presente": true,
-            "tipo": "sideropenica"
-        },
-        "distiroidismo": "ipotiroidismo"
-    }
+    "paziente_id": 699,
+    "operatore_id": 1992,
+    "status": "complete",
+    "created_at": "2024-03-20T10:30:00Z",
+    "updated_at": "2024-03-20T10:30:00Z",
+    "malattia_renale_cronica": {
+        "presente": true,
+        "stadio": 2
+    },
+    "bpco": false,
+    "steatosi_epatica": {
+        "presente": true,
+        "grado": "moderata"
+    },
+    "anemia": {
+        "presente": true,
+        "tipo": "sideropenica"
+    },
+    "distiroidismo": "ipotiroidismo"
 }
 ```
 
@@ -235,33 +232,31 @@ Response (200 OK):
 ```json
 {
     "status": "complete",
-    "data": {
-        "paziente_id": 699,
-        "operatore_id": 1992,
-        "status": "draft",
-        "created_at": "2024-03-20T10:30:00Z",
-        "updated_at": "2024-03-20T10:30:00Z",
-        "dolore_toracico": {
-            "presente": true,
-            "tipo": "tipico",
-            "frequenza": "frequente"
-        },
-        "dispnea": {
-            "presente": true,
-            "classe_nyha": 2
-        },
-        "cardiopalmo": {
-            "presente": true,
-            "frequenza": "frequente"
-        },
-        "sincope": {
-            "tipo": "sincope",
-            "verosimile": "vasovagale"
-        },
-        "altro": {
-            "presente": true,
-            "descrizione": "Affaticamento cronico e vertigini occasionali"
-        }
+    "paziente_id": 699,
+    "operatore_id": 1992,
+    "status": "draft",
+    "created_at": "2024-03-20T10:30:00Z",
+    "updated_at": "2024-03-20T10:30:00Z",
+    "dolore_toracico": {
+        "presente": true,
+        "tipo": "tipico",
+        "frequenza": "frequente"
+    },
+    "dispnea": {
+        "presente": true,
+        "classe_nyha": 2
+    },
+    "cardiopalmo": {
+        "presente": true,
+        "frequenza": "frequente"
+    },
+    "sincope": {
+        "tipo": "sincope",
+        "verosimile": "vasovagale"
+    },
+    "altro": {
+        "presente": true,
+        "descrizione": "Affaticamento cronico e vertigini occasionali"
     }
 }
 ```
@@ -348,19 +343,17 @@ GET http://localhost:8000/api/anamnesi/coinvolgimento-multisistemico/699/
 Response (200 OK):
 ```json
 {
-    "status": "complete",
-    "data": {
-        "paziente_id": 699,
-        "operatore_id": 1992,
-        "status": "draft",
-        "created_at": "2024-03-20T10:30:00Z",
-        "updated_at": "2024-03-20T10:30:00Z",
-        "sistema_nervoso": "difficolta_apprendimento",
-        "occhio": "ptosi_palpebrale",
-        "orecchio": "difficolta_apprendimento",
-        "sistema_muscoloscheletrico": "debolezza_muscolare",
-        "pelle": "angiocheratoma"
-    }
+    "status": "complete", "data": {
+    "paziente_id": 699,
+    "operatore_id": 1992,
+    "status": "draft",
+    "created_at": "2024-03-20T10:30:00Z",
+    "updated_at": "2024-03-20T10:30:00Z",
+    "sistema_nervoso": "difficolta_apprendimento",
+    "occhio": "ptosi_palpebrale",
+    "orecchio": "difficolta_apprendimento",
+    "sistema_muscoloscheletrico": "debolezza_muscolare",
+    "pelle": "angiocheratoma"}
 }
 ```
 
@@ -384,13 +377,35 @@ PUT http://localhost:8000/api/anamnesi/coinvolgimento-multisistemico/699/
 DELETE http://localhost:8000/api/anamnesi/coinvolgimento-multisistemico/699/
 ```
 
-# 5. Terapia Farmaologica
+# 5. Terapia Farmacologica
 
 ### Values:
 farmaci: array of strings
 - Each entry should be a valid medication name
 - Array can be empty but must be present
 - No specific restrictions on medication names
+
+### GET Request
+```http
+GET http://localhost:8000/api/anamnesi/terapia-farmacologica/699/
+```
+
+Response (200 OK):
+```json
+{
+    "paziente_id": 699,
+    "operatore_id": 1992,
+    "status": "complete",
+    "created_at": "2024-11-22T09:11:50.007000Z",
+    "updated_at": "2024-11-22T09:11:50.007000Z",
+    "farmaci": [
+        "Metoprololo 100mg",
+        "Ramipril 5mg",
+        "Furosemide 25mg",
+        "Levotiroxina 75mcg"
+    ]
+}
+```
 
 ### PUT Request
 ```http

@@ -1,440 +1,209 @@
-# Anamnesi API Endpoints - Complete Examples
+ GET /api/ecg/{paziente_id}/
 
-## Common Headers for All Requests
-```
-Authorization: Bearer $accessToken
-Content-Type: application/json
-```
-### Common Values: 
-status:
-- "draft"
-- "complete"
-- "archived"
-
-## 1. Fattori Rischio
-dislipidemia.tipo:
-- "no"
-- "ipercolesterolemia"
-- "ipertrigliceridemia"
-- "mista"
-
-fumo.stato:
-- "no"
-- "si"
-- "passato"
-
-obesita:
-- "normopeso"
-- "sovrappeso"
-- "obeso"
-
-distiroidismo:
-- "no"
-- "ipotiroidismo"
-- "ipertiroidismo"
-- "tiroidectomia"
-
-Base URL: `http://localhost:8000/api/anamnesi/fattori-rischio/{paziente_id}/`
-
-### GET Request
-```http
-GET http://localhost:8000/api/anamnesi/fattori-rischio/699/
-```
-
-Response (200 OK):
-```json
+ Response Data
 {
-    "status": "complete",
-    "data": {
-        "paziente_id": 699,
-        "operatore_id": 1992,
-        "status": "complete",
-        "created_at": "2024-03-20T10:30:00Z",
-        "updated_at": "2024-03-20T10:30:00Z",
-        "ipertensione_arteriosa": {
-            "presente": true,
-            "anni": 5
-        },
-        "dislipidemia": {
-            "tipo": "ipercolesterolemia",
-            "anni": 3
-        },
-        "diabete_mellito": {
-            "presente": false,
-            "anni": 0
-        },
-        "fumo": {
-            "stato": "passato",
-            "anni": 10,
-            "anni_smesso": 2
-        },
-        "obesita": "normopeso"
-    }
-}
-```
-
-### PUT Request
-```http
-PUT http://localhost:8000/api/anamnesi/fattori-rischio/699/
-
-{
+    "paziente_id": 1992,
     "operatore_id": 1992,
     "status": "complete",
-    "ipertensione_arteriosa": {
-        "presente": true,
-        "anni": 5
-    },
-    "dislipidemia": {
-        "tipo": "ipercolesterolemia",
-        "anni": 3
-    },
-    "diabete_mellito": {
-        "presente": false,
-        "anni": 0
-    },
-    "fumo": {
-        "stato": "passato",
-        "anni": 10,
-        "anni_smesso": 2
-    },
-    "obesita": "normopeso"
-}
-```
-
-### DELETE Request
-```http
-DELETE http://localhost:8000/api/anamnesi/fattori-rischio/699/
-```
-## 2. Comorbidita 
-### Values:
-malattia_renale_cronica:
-  presente: boolean
-  stadio: number (0-5)
-
-steatosi_epatica:
-  presente: boolean
-  grado: string (optional)
-
-anemia:
-  presente: boolean
-  tipo: string (optional)
-
-bpco: boolean
-
-distiroidismo:
-- "no"
-- "ipotiroidismo"
-- "ipertiroidismo"
-- "tiroidectomia"
-
-### Base URL: `http://localhost:8000/api/anamnesi/comorbidita/{paziente_id}/`
-
-### GET Request
-```http
-GET http://localhost:8000/api/anamnesi/comorbidita/699/
-```
-
-Response (200 OK):
-```json
-{
-    "status": "complete",
-    "data": {
-        "paziente_id": 699,
-        "operatore_id": 1992,
-        "status": "complete",
-        "created_at": "2024-03-20T10:30:00Z",
-        "updated_at": "2024-03-20T10:30:00Z",
-        "malattia_renale_cronica": {
-            "presente": true,
-            "stadio": 2
-        },
-        "bpco": false,
-        "steatosi_epatica": {
-            "presente": true,
-            "grado": "moderata"
-        },
-        "anemia": {
-            "presente": true,
-            "tipo": "sideropenica"
-        },
-        "distiroidismo": "ipotiroidismo"
+    "created_at": "2024-11-22T08:55:15.470000Z",
+    "updated_at": "2024-11-22T08:55:15.470000Z",
+    "ritmo": "ritmo_sinusale",
+    "pr": "nei_limiti",
+    "qrs": "bbd",
+    "rv": {
+        "stato": "nei_limiti",
+        "dettagli": "Nessuna alterazione significativa"
     }
 }
-```
 
-### PUT Request
-```http
-PUT http://localhost:8000/api/anamnesi/comorbidita/699/
 
+ PUT /api/ecg/{paziente_id}/
+
+Request Body
 {
+    "paziente_id": 1992,
     "operatore_id": 1992,
     "status": "complete",
-    "malattia_renale_cronica": {
-        "presente": true,
-        "stadio": 2
-    },
-    "bpco": false,
-    "steatosi_epatica": {
-        "presente": true,
-        "grado": "moderata"
-    },
-    "anemia": {
-        "presente": true,
-        "tipo": "sideropenica"
-    },
-    "distiroidismo": "ipotiroidismo"
-}
-```
-
-### DELETE Request
-```http
-DELETE http://localhost:8000/api/anamnesi/comorbidita/699/
-```
-
-## 3. Sintomatologia
-
-### Values:
-dolore_toracico.tipo:
-- "tipico"
-- "atipico"
-
-frequenza:
-- "raro"
-- "frequente"
-
-sincope.tipo:
-- "no"
-- "lipotimia"
-- "sincope"
-
-sincope.verosimile:
-- "vasovagale"
-- "aritmica"
-
-Base URL: `http://localhost:8000/api/anamnesi/sintomatologia/{paziente_id}/`
-
-### GET Request
-```http
-GET http://localhost:8000/api/anamnesi/sintomatologia/699/
-```
-
-Response (200 OK):
-```json
-{
-    "status": "complete",
-    "data": {
-        "paziente_id": 699,
-        "operatore_id": 1992,
-        "status": "draft",
-        "created_at": "2024-03-20T10:30:00Z",
-        "updated_at": "2024-03-20T10:30:00Z",
-        "dolore_toracico": {
-            "presente": true,
-            "tipo": "tipico",
-            "frequenza": "frequente"
-        },
-        "dispnea": {
-            "presente": true,
-            "classe_nyha": 2
-        },
-        "cardiopalmo": {
-            "presente": true,
-            "frequenza": "frequente"
-        },
-        "sincope": {
-            "tipo": "sincope",
-            "verosimile": "vasovagale"
-        },
-        "altro": {
-            "presente": true,
-            "descrizione": "Affaticamento cronico e vertigini occasionali"
-        }
+    "ritmo": "ritmo_sinusale",
+    "pr": "nei_limiti",
+    "qrs": "bbd",
+    "rv": {
+        "stato": "nei_limiti",
+        "dettagli": "Nessuna alterazione significativa"
     }
 }
-```
 
-### PUT Request
-```http
-PUT http://localhost:8000/api/anamnesi/sintomatologia/699/
+DELETE /api/ecg/{paziente_id}/
 
+GET /api/ecocardiogramma/{paziente_id}/
+Response Body
 {
-    "operatore_id": 1992,
-    "status": "draft",
-    "dolore_toracico": {
-        "presente": true,
-        "tipo": "tipico",
-        "frequenza": "frequente"
-    },
-    "dispnea": {
-        "presente": true,
-        "classe_nyha": 2
-    },
-    "cardiopalmo": {
-        "presente": true,
-        "frequenza": "frequente"
-    },
-    "sincope": {
-        "tipo": "sincope",
-        "verosimile": "vasovagale"
-    },
-    "altro": {
-        "presente": true,
-        "descrizione": "Affaticamento cronico e vertigini occasionali"
-    }
-}
-```
-
-### DELETE Request
-```http
-DELETE http://localhost:8000/api/anamnesi/sintomatologia/699/
-```
-
-Response (204 No Content)
-
-## 4. Coinvolgimento Multisistemico
-
-### Values:
-
-sistema_nervoso:
-- "no"
-- "difficolta_apprendimento"
-- "ritardo_psicomotorio"
-- "atassia"
-- "parestesie"
-
-occhio:
-- "no"
-- "ipovisione"
-- "ptosi_palpebrale"
-
-orecchio:
-- "no"
-- "difficolta_apprendimento"
-- "ritardo_psicomotorio"
-- "atassia"
-
-sistema_muscoloscheletrico:
-- "no"
-- "miotonia"
-- "tunnel_carpale_bilaterale"
-- "debolezza_muscolare"
-
-pelle:
-- "no"
-- "lentiggini"
-- "angiocheratoma"
-- "cheratodermia"
-
-Base URL: `http://localhost:8000/api/anamnesi/coinvolgimento-multisistemico/{paziente_id}/`
-
-### GET Request
-```http
-GET http://localhost:8000/api/anamnesi/coinvolgimento-multisistemico/699/
-```
-
-Response (200 OK):
-```json
-{
-    "status": "complete",
-    "data": {
-        "paziente_id": 699,
-        "operatore_id": 1992,
-        "status": "draft",
-        "created_at": "2024-03-20T10:30:00Z",
-        "updated_at": "2024-03-20T10:30:00Z",
-        "sistema_nervoso": "difficolta_apprendimento",
-        "occhio": "ptosi_palpebrale",
-        "orecchio": "difficolta_apprendimento",
-        "sistema_muscoloscheletrico": "debolezza_muscolare",
-        "pelle": "angiocheratoma"
-    }
-}
-```
-
-### PUT Request
-```http
-PUT http://localhost:8000/api/anamnesi/coinvolgimento-multisistemico/699/
-
-{
-    "operatore_id": 1992,
-    "status": "draft",
-    "sistema_nervoso": "difficolta_apprendimento",
-    "occhio": "ptosi_palpebrale",
-    "orecchio": "difficolta_apprendimento",
-    "sistema_muscoloscheletrico": "debolezza_muscolare",
-    "pelle": "angiocheratoma"
-}
-```
-
-### DELETE Request
-```http
-DELETE http://localhost:8000/api/anamnesi/coinvolgimento-multisistemico/699/
-```
-
-# 5. Terapia Farmaologica
-
-### Values:
-farmaci: array of strings
-- Each entry should be a valid medication name
-- Array can be empty but must be present
-- No specific restrictions on medication names
-
-### PUT Request
-```http
-PUT http://localhost:8000/api/anamnesi/terapia-farmacologica/699/
-
-{
+    "paziente_id": 1993,
     "operatore_id": 1992,
     "status": "complete",
-    "farmaci": [
-        "Metoprololo 100mg",
-        "Ramipril 5mg",
-        "Furosemide 25mg",
-        "Levotiroxina 75mcg"
-    ]
+    "created_at": "2024-11-22T09:00:58.800000Z",
+    "updated_at": "2024-11-22T09:00:58.800000Z",
+    "diametro_telediastolico_vs": 45.5,
+    "spessore_siv": 11.2,
+    "spessore_pp": 10.1,
+    "diametro_anteroposteriore_as": 38.0,
+    "volume_as": 52.0,
+    "radice_aortica": 32.5,
+    "aorta_ascendente": 34.0,
+    "fe": 65.0,
+    "gp_aortico": {
+        "medio": 12.0,
+        "max": 24.0
+    },
+    "gp_mitralico": {
+        "medio": 3.5,
+        "max": 7.0
+    },
+    "paps": 28.0,
+    "lvot": 2.1
 }
-```
 
-### DELETE Request
-```http
-DELETE http://localhost:8000/api/anamnesi/terapia-farmacologica/699/
-```
+PUT /api/ecocardiogramma/{paziente_id}/
 
-## Important Notes
-- 200: Successful GET/PUT
-- 204: Successful DELETE
-- 400: Invalid request data
-- 401: Authentication failure
-- 404: Record not found
-- 500: Server error
+Request Body
+{
+    "paziente_id": 1993,
+    "operatore_id": 1992,
+    "status": "complete",
+    "created_at": "2024-11-15T10:44:40.008795Z",
+    "updated_at": "2024-11-15T10:44:40.502434Z",
+    "diametro_telediastolico_vs": 45.5,
+    "spessore_siv": 11.2,
+    "spessore_pp": 10.1,
+    "diametro_anteroposteriore_as": 38.0,
+    "volume_as": 52.0,
+    "radice_aortica": 32.5,
+    "aorta_ascendente": 34.0,
+    "fe": 65.0,
+    "gp_aortico": {
+        "medio": 12.0,
+        "max": 24.0
+    },
+    "gp_mitralico": {
+        "medio": 3.5,
+        "max": 7.0
+    },
+    "paps": 28.0,
+    "lvot": 2.1
+}
+
+DELETE /api/ecocardiogramma/{paziente_id}/
 
 
-# Pedigree
-### Valid Values:
-status:
-- "draft"
-- "complete"
-- "archived"
+ GET /api/esami-laboratorio/{paziente_id}/
+ Response Body:
+ {
+    "paziente_id": 1992,
+    "operatore_id": 1992,
+    "status": "complete",
+    "created_at": "2024-11-22T09:09:12.185000Z",
+    "updated_at": "2024-11-22T09:09:12.185000Z",
+    "cpk": 150.0,
+    "troponina_hs": 0.012,
+    "nt_pro_bnp": 125.0,
+    "d_dimero": 250.0,
+    "creatinina": 0.9,
+    "azotemia": 35.0,
+    "na": 140.0,
+    "k": 4.2,
+    "gfr": 90.0,
+    "albuminuria": 15.0,
+    "alt": 25.0,
+    "ast": 22.0,
+    "bilirubina": {
+        "totale": 1.2,
+        "diretta": 0.3,
+        "indiretta": 0.9
+    },
+    "ggt": 30.0,
+    "alfa_galattosidasi": 3.2,
+    "componente_monoclonale_sierica": "Assente",
+    "immunofissazione_sierica": "Negativa",
+    "immunofissazione_urinaria": "Negativa"
+}
+ 
+ PUT /api/esami-laboratorio/{paziente_id}/
+ 
+ Request Body
+ {
+    "paziente_id": 1993,
+    "operatore_id": 1992,
+    "status": "complete",
+    "created_at": "2024-11-15T10:44:40.008795Z",
+    "updated_at": "2024-11-15T10:44:40.502434Z",
+    "cpk": 150.0,
+    "troponina_hs": 0.012,
+    "nt_pro_bnp": 125.0,
+    "d_dimero": 250.0,
+    "creatinina": 0.9,
+    "azotemia": 35.0,
+    "na": 140.0,
+    "k": 4.2,
+    "gfr": 90.0,
+    "albuminuria": 15.0,
+    "alt": 25.0,
+    "ast": 22.0,
+    "bilirubina": {
+        "totale": 1.2,
+        "diretta": 0.3,
+        "indiretta": 0.9
+    },
+    "ggt": 30.0,
+    "alfa_galattosidasi": 3.2,
+    "componente_monoclonale_sierica": "Assente",
+    "immunofissazione_sierica": "Negativa",
+    "immunofissazione_urinaria": "Negativa"
+}
 
-severita:
-- "lieve"
-- "severa"
+ DELET /api/esami-laboratorio/{paziente_id}/
 
-device:
-- "no"
-- "pm" (pacemaker)
-- "icd" (implantable cardioverter-defibrillator)
-- "crt" (cardiac resynchronization therapy)
+GET /api/genetica/{paziente_id}/
+Response Body:
+{
+    "paziente_id": 1992,
+    "operatore_id": 1992,
+    "status": "complete",
+    "created_at": "2024-11-22T09:12:17.250000Z",
+    "updated_at": "2024-11-22T09:12:17.250000Z",
+    "trasmissione": "ad",
+    "gene": {
+        "nome": "MYBPC3",
+        "tipo": "patogenetica"
+    }
+}
 
-### Base URL: http://localhost:8000/api/pedigree/{paziente_id}/
 
-### GET http://localhost:8000/api/pedigree/699/
-
-### PUT REQUEST
+PUT /api/genetica/{paziente_id}/
+Request Body:
 {
     "paziente_id": 699,
     "operatore_id": 1992,
     "status": "complete",
+    "created_at": "2024-11-15T10:44:40.008795Z",
+    "updated_at": "2024-11-15T10:44:40.502434Z",
+    "trasmissione": "ad",
+    "gene": {
+        "nome": "MYBPC3",
+        "tipo": "patogenetica"
+    }
+}
+
+DELETE /api/genetica/{paziente_id}/
+
+
+GET /api/pedigree/1992/
+Response Body:
+{
+    "paziente_id": 699,
+    "operatore_id": 1992,
+    "status": "complete",
+    "created_at": "2024-11-22T09:17:32.222008Z",
+    "updated_at": "2024-11-22T09:17:32.222008Z",
     "padre": {
         "stessa_malattia": false,
         "eta_esordio": null,
@@ -445,7 +214,7 @@ device:
     },
     "madre": {
         "stessa_malattia": true,
-        "eta_esordio": 45,
+        "eta_esordio": 44,
         "severita": "lieve",
         "morte_improvvisa": false,
         "eta_morte": null,
@@ -485,74 +254,45 @@ device:
     },
     "fratelli": [
         {
-            "numero": 1,
             "stessa_malattia": true,
             "eta_esordio": 30,
             "severita": "lieve",
             "morte_improvvisa": false,
             "eta_morte": null,
-            "device": "no"
+            "device": "no",
+            "numero": 1
         },
         {
-            "numero": 2,
             "stessa_malattia": false,
             "eta_esordio": null,
             "severita": null,
             "morte_improvvisa": false,
             "eta_morte": null,
-            "device": "no"
+            "device": "no",
+            "numero": 2
         }
     ],
     "figli": [
         {
-            "numero": 1,
             "stessa_malattia": true,
             "eta_esordio": 15,
             "severita": "lieve",
             "morte_improvvisa": false,
             "eta_morte": null,
-            "device": "no"
+            "device": "no",
+            "numero": 1
         }
     ]
 }
 
-### DELETE http://localhost:8000/api/pedigree/699/
-
-#ECG
-
-### Valid Values : 
-ritmo:
-- "ritmo_sinusale"
-- "fa"
-- "besv"
-- "bev"
-
-pr:
-- "nei_limiti"
-- "bav_i"
-- "corto_preeccitazione"
-
-qrs:
-- "nei_limiti"
-- "ivs"
-- "onde_q"
-- "bbd"
-- "bbs"
-- "bassi_voltaggi"
-
-rv.stato:
-- "nei_limiti"
-- "t_negative"
-
-### GET REQUEST http://localhost:8000/api/ecg/699/
-
-### PUT REQUEST http://localhost:8000/api/ecg/699/
-Request Body: 
-```
+PUT /api/pedigree/1992/
+Request Body:
 {
     "paziente_id": 699,
     "operatore_id": 1992,
     "status": "complete",
+    "created_at": "2024-11-15T10:44:40.008795Z",
+    "updated_at": "2024-11-15T10:44:40.502434Z",
     "padre": {
         "stessa_malattia": false,
         "eta_esordio": null,
@@ -633,145 +373,5 @@ Request Body:
         }
     ]
 }
-```
-### DELETE REQUEST http://localhost:8000/api/pedigree/699/
 
-# GENETICA
-
-### Valid Values:
-trasmissione:
-- "ad"
-- "ar"
-- "x_linked"
-- "materna"
-
-gene.tipo:
-- "patogenetica"
-- "prob_patogenetica"
-- "vus"
-- "prob_benigna"
-- "benigna"
-
-
-### GET REQUEST http://localhost:8000/api/genetica/699/
-
-### PUT REQUEST http://localhost:8000/api/genetica/699/
-
-```
-{
-    "operatore_id": 1992,
-    "status": "complete",
-    "trasmissione": "ad",
-    "gene": {
-        "nome": "MYBPC3",
-        "tipo": "patogenetica"
-    }
-}
-```
-
-### DELETE REQUEST http://localhost:8000/api/genetica/699/
-
-# ECOCARDIOGRAMMA
-
-### Valid Values:
-All measurements must be positive numbers:
-- diametro_telediastolico_vs
-- spessore_siv
-- spessore_pp
-- diametro_anteroposteriore_as
-- volume_as
-- radice_aortica
-- aorta_ascendente
-- fe (must be between 0-100)
-- paps
-- lvot
-
-Gradiente Pressorio constraints:
-- medio and max must be positive
-- max must be greater than medio
-
-### GET http://localhost:8000/api/ecocardiogramma/699/
-
-### PUT http://localhost:8000/api/ecocardiogramma/699/
-```
-{
-    "operatore_id": 1992,
-    "status": "complete",
-    "diametro_telediastolico_vs": 45.5,
-    "spessore_siv": 11.2,
-    "spessore_pp": 10.1,
-    "diametro_anteroposteriore_as": 38.0,
-    "volume_as": 52.0,
-    "radice_aortica": 32.5,
-    "aorta_ascendente": 34.0,
-    "fe": 65.0,
-    "gp_aortico": {
-        "medio": 12.0,
-        "max": 24.0
-    },
-    "gp_mitralico": {
-        "medio": 3.5,
-        "max": 7.0
-    },
-    "paps": 28.0,
-    "lvot": 2.1
-}
-```
-
-
-### DELETE http://localhost:8000/api/ecocardiogramma/699/
-
-
-# ECOCARDIOGRAMMA
-
-### Valid Values:
-All measurements must be positive numbers:
-- diametro_telediastolico_vs
-- spessore_siv
-- spessore_pp
-- diametro_anteroposteriore_as
-- volume_as
-- radice_aortica
-- aorta_ascendente
-- fe (must be between 0-100)
-- paps
-- lvot
-
-Gradiente Pressorio constraints:
-- medio and max must be positive
-- max must be greater than medio
-
-### GET http://localhost:8000/api/esami-laboratorio/699/
-
-### PUT http://localhost:8000/api/esami-laboratorio/699/
-```
-{
-    "operatore_id": 1992,
-    "status": "complete",
-    "cpk": 150.0,
-    "troponina_hs": 0.012,
-    "nt_pro_bnp": 125.0,
-    "d_dimero": 250.0,
-    "creatinina": 0.9,
-    "azotemia": 35.0,
-    "na": 140.0,
-    "k": 4.2,
-    "gfr": 90.0,
-    "albuminuria": 15.0,
-    "alt": 25.0,
-    "ast": 22.0,
-    "bilirubina": {
-        "totale": 1.2,
-        "diretta": 0.3,
-        "indiretta": 0.9
-    },
-    "ggt": 30.0,
-    "alfa_galattosidasi": 3.2,
-    "componente_monoclonale_sierica": "Assente",
-    "immunofissazione_sierica": "Negativa",
-    "immunofissazione_urinaria": "Negativa"
-}
-```
-
-
-### DELETE http://localhost:8000/api/esami-laboratorio/699/
+DELETE /api/pedigree/1992/

@@ -121,11 +121,11 @@ class AnamnesiCompletaSer(serializers.Serializer):
     created_at = serializers.DateTimeField(read_only=True)
     updated_at = serializers.DateTimeField(read_only=True)
     
-    fattori_rischio = FattoriRischioSer()
-    comorbidita = ComorbiditaSer()
-    sintomatologia = SintomatologiaSer()
-    coinvolgimento_multisistemico = CoinvolgimentoMultisistemicoSer()
-    terapia_farmacologica = TerapiaFarmacologicaSer()
+    fattori_rischio = FattoriRischioSer(allow_null=True, required=False)
+    comorbidita = ComorbiditaSer(allow_null=True, required=False)
+    sintomatologia = SintomatologiaSer(allow_null=True, required=False)
+    coinvolgimento_multisistemico = CoinvolgimentoMultisistemicoSer(allow_null=True, required=False)
+    terapia_farmacologica = TerapiaFarmacologicaSer(allow_null=True, required=False)
 
     def validate_paziente_id(self, value):
         if value <= 0:

@@ -197,7 +197,7 @@ class BaseAnamnesisView(APIView):
                 raise NotFound(f"{self.model.__name__} not found for patient {paziente_id}")
             
             instance.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response({"result": f"{self.model.__name__} for patient {paziente_id} successfully deleted"}, status=status.HTTP_204_NO_CONTENT)
         except (ValidationError, NotFound) as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
@@ -231,51 +231,95 @@ class TerapiaFarmacologicaView(BaseAnamnesisView):
 class AnamnesiCompletaView(APIView):
     """View for handling complete anamnesis records"""
     
+    def validate_paziente_id(self, paziente_id):
+        """Validate and convert paziente_id to integer"""
+        try:
+            pid = int(paziente_id)
+            if pid <= 0:
+                raise ValidationError("paziente_id must be positive")
+            return pid
+        except ValueError:
+            raise ValidationError("paziente_id must be a valid integer")
+        
     def _get_all_records(self, patient_id):
-        """Helper method to fetch all anamnesis records"""
+        """Helper method to fetch all anamnesis records with consistent key names"""
         records = {
             'fattori_rischio': FattoriRischio.objects(paziente_id=patient_id).first(),
             'comorbidita': Comorbidita.objects(paziente_id=patient_id).first(),
             'sintomatologia': Sintomatologia.objects(paziente_id=patient_id).first(),
-            'coinvolgimento': CoinvolgimentoMultisistemico.objects(paziente_id=patient_id).first(),
-            'terapia': TerapiaFarmacologica.objects(paziente_id=patient_id).first()
+            'coinvolgimento_multisistemico': CoinvolgimentoMultisistemico.objects(paziente_id=patient_id).first(),
+            'terapia_farmacologica': TerapiaFarmacologica.objects(paziente_id=patient_id).first()
         }
         
-        # Check if any record is missing
-        missing = [k for k, v in records.items() if v is None]
-        if missing:
-            raise NotFound(f"Missing records for: {', '.join(missing)}")
+        # Only raise NotFound if ALL records are missing
+        if all(v is None for v in records.values()):
+            raise NotFound(f"No records found for patient {patient_id}")
             
         return records
 
     def get(self, request, paziente_id):
-        """Get complete anamnesis record"""
+        """Get complete anamnesis record with available sections"""
         try:
             patient_id = self.validate_paziente_id(paziente_id)
             records = self._get_all_records(patient_id)
 
+            # Find the first available record for common fields
+            first_record = next((r for r in records.values() if r is not None), None)
+            if not first_record:
+                return Response({"message": "No records available"}, status=status.HTTP_404_NOT_FOUND)
+
+            # Prepare base data
             data = {
                 'paziente_id': patient_id,
-                'operatore_id': records['fattori_rischio'].operatore_id,
-                'created_at': records['fattori_rischio'].created_at,
-                'updated_at': max(r.updated_at for r in records.values()),
-                'fattori_rischio': FattoriRischioSer(records['fattori_rischio']).data,
-                'comorbidita': ComorbiditaSer(records['comorbidita']).data,
-                'sintomatologia': SintomatologiaSer(records['sintomatologia']).data,
-                'coinvolgimento_multisistemico': CoinvolgimentoMultisistemicoSer(records['coinvolgimento']).data,
-                'terapia_farmacologica': TerapiaFarmacologicaSer(records['terapia']).data
+                'operatore_id': first_record.operatore_id,
+                'created_at': first_record.created_at,
+                'updated_at': max((r.updated_at for r in records.values() if r is not None), default=first_record.updated_at)
             }
 
-            serializer = AnamnesiCompletaSer(data=data)
+            # Add available sections to response with their serializers
+            serializer_mapping = {
+                'fattori_rischio': FattoriRischioSer,
+                'comorbidita': ComorbiditaSer,
+                'sintomatologia': SintomatologiaSer,
+                'coinvolgimento_multisistemico': CoinvolgimentoMultisistemicoSer,
+                'terapia_farmacologica': TerapiaFarmacologicaSer
+            }
+
+            for section_name, record in records.items():
+                if record is not None:
+                    serializer_class = serializer_mapping[section_name]
+                    data[section_name] = serializer_class(record).data
+                else:
+                    data[section_name] = None
+
+            # Add information about missing sections
+            missing_sections = [k for k, v in records.items() if v is None]
+
+            # Use the serializer for validation but allow partial data
+            serializer = AnamnesiCompletaSer(data=data, partial=True)
             if not serializer.is_valid():
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-            return Response(serializer.data)
+            response_data = {
+                "message": "Partial data available" if missing_sections else "Complete data available",
+                "data": serializer.data
+            }
+
+            # Only include missing_sections in response if there are any
+            if missing_sections:
+                response_data["missing_sections"] = missing_sections
+
+            return Response(response_data)
 
         except ValidationError as e:
+            logger.error(f"Validation error in AnamnesiCompleta GET: {str(e)}")
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except NotFound as e:
-            return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
+            logger.error(f"Not found error in AnamnesiCompleta GET: {str(e)}")
+            return Response({
+                "error": str(e),
+                "message": "No records found for this patient"
+            }, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             logger.error(f"Error in AnamnesiCompleta GET: {str(e)}")
             return Response(

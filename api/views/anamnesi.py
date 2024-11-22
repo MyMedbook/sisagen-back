@@ -197,7 +197,7 @@ class BaseAnamnesisView(APIView):
                 raise NotFound(f"{self.model.__name__} not found for patient {paziente_id}")
             
             instance.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response({"result": f"{self.model.__name__} for patient {paziente_id} successfully deleted"}, status=status.HTTP_204_NO_CONTENT)
         except (ValidationError, NotFound) as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:

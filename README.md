@@ -464,6 +464,8 @@ device:
     "paziente_id": 699,
     "operatore_id": 1992,
     "status": "complete",
+    "created_at": "2024-11-15T10:44:40.008795Z",
+    "updated_at": "2024-11-15T10:44:40.502434Z",
     "padre": {
         "stessa_malattia": false,
         "eta_esordio": null,
@@ -474,7 +476,7 @@ device:
     },
     "madre": {
         "stessa_malattia": true,
-        "eta_esordio": 45,
+        "eta_esordio": 44,
         "severita": "lieve",
         "morte_improvvisa": false,
         "eta_morte": null,
@@ -580,91 +582,19 @@ rv.stato:
 Request Body: 
 ```json
 {
-    "paziente_id": 699,
+    "paziente_id": 1992,
     "operatore_id": 1992,
     "status": "complete",
-    "padre": {
-        "stessa_malattia": false,
-        "eta_esordio": null,
-        "severita": null,
-        "morte_improvvisa": false,
-        "eta_morte": null,
-        "device": "no"
-    },
-    "madre": {
-        "stessa_malattia": true,
-        "eta_esordio": 44,
-        "severita": "lieve",
-        "morte_improvvisa": false,
-        "eta_morte": null,
-        "device": "pm"
-    },
-    "nonno_paterno": {
-        "stessa_malattia": true,
-        "eta_esordio": 60,
-        "severita": "severa",
-        "morte_improvvisa": true,
-        "eta_morte": 65,
-        "device": "icd"
-    },
-    "nonna_paterna": {
-        "stessa_malattia": false,
-        "eta_esordio": null,
-        "severita": null,
-        "morte_improvvisa": false,
-        "eta_morte": null,
-        "device": "no"
-    },
-    "nonno_materno": {
-        "stessa_malattia": false,
-        "eta_esordio": null,
-        "severita": null,
-        "morte_improvvisa": false,
-        "eta_morte": null,
-        "device": "no"
-    },
-    "nonna_materna": {
-        "stessa_malattia": false,
-        "eta_esordio": null,
-        "severita": null,
-        "morte_improvvisa": false,
-        "eta_morte": null,
-        "device": "no"
-    },
-    "fratelli": [
-        {
-            "numero": 1,
-            "stessa_malattia": true,
-            "eta_esordio": 30,
-            "severita": "lieve",
-            "morte_improvvisa": false,
-            "eta_morte": null,
-            "device": "no"
-        },
-        {
-            "numero": 2,
-            "stessa_malattia": false,
-            "eta_esordio": null,
-            "severita": null,
-            "morte_improvvisa": false,
-            "eta_morte": null,
-            "device": "no"
-        }
-    ],
-    "figli": [
-        {
-            "numero": 1,
-            "stessa_malattia": true,
-            "eta_esordio": 15,
-            "severita": "lieve",
-            "morte_improvvisa": false,
-            "eta_morte": null,
-            "device": "no"
-        }
-    ]
+    "ritmo": "ritmo_sinusale",
+    "pr": "nei_limiti",
+    "qrs": "bbd",
+    "rv": {
+        "stato": "nei_limiti",
+        "dettagli": "Nessuna alterazione significativa"
+    }
 }
 ```
-### DELETE REQUEST http://localhost:8000/api/pedigree/699/
+
 
 # GENETICA
 
@@ -689,8 +619,11 @@ gene.tipo:
 
 ```json
 {
+    "paziente_id": 699,
     "operatore_id": 1992,
     "status": "complete",
+    "created_at": "2024-11-15T10:44:40.008795Z",
+    "updated_at": "2024-11-15T10:44:40.502434Z",
     "trasmissione": "ad",
     "gene": {
         "nome": "MYBPC3",
@@ -725,8 +658,11 @@ Gradiente Pressorio constraints:
 ### PUT http://localhost:8000/api/ecocardiogramma/699/
 ```json
 {
+    "paziente_id": 1993,
     "operatore_id": 1992,
     "status": "complete",
+    "created_at": "2024-11-15T10:44:40.008795Z",
+    "updated_at": "2024-11-15T10:44:40.502434Z",
     "diametro_telediastolico_vs": 45.5,
     "spessore_siv": 11.2,
     "spessore_pp": 10.1,
@@ -746,38 +682,55 @@ Gradiente Pressorio constraints:
     "paps": 28.0,
     "lvot": 2.1
 }
+
 ```
 
 
 ### DELETE http://localhost:8000/api/ecocardiogramma/699/
 
 
-# ECOCARDIOGRAMMA
+# ESAMI LABORATORIO
 
 ### Valid Values:
 All measurements must be positive numbers:
-- diametro_telediastolico_vs
-- spessore_siv
-- spessore_pp
-- diametro_anteroposteriore_as
-- volume_as
-- radice_aortica
-- aorta_ascendente
-- fe (must be between 0-100)
-- paps
-- lvot
-
-Gradiente Pressorio constraints:
-- medio and max must be positive
-- max must be greater than medio
+-    "paziente_id": integer,
+-    "operatore_id": integer,
+-    "status": string ["draft", "complete", "archived"],
+-    "created_at": datetime (read-only),
+-    "updated_at": datetime (read-only),
+-    "cpk": float,                         // Creatine Phosphokinase
+-    "troponina_hs": float,               // High-sensitivity Troponin
+-    "nt_pro_bnp": float,                 // NT-proBNP
+-    "d_dimero": float,                   // D-dimer
+-    "creatinina": float,                 // Creatinine
+-    "azotemia": float,                   // Blood Urea Nitrogen
+-    "na": float,                         // Sodium
+-    "k": float,                          // Potassium
+-    "gfr": float,                        // Glomerular Filtration Rate
+-    "albuminuria": float,                // Albuminuria
+-    "alt": float,                        // Alanine Transaminase
+-    "ast": float,                        // Aspartate Transaminase
+-    "bilirubina": {
+       "totale": float,                 // Total Bilirubin
+       "diretta": float,                // Direct Bilirubin
+       "indiretta": float               // Indirect Bilirubin
+    },
+-   "ggt": float,                        // Gamma-Glutamyl Transferase
+-   "alfa_galattosidasi": float,         // Alpha-Galactosidase
+-   "componente_monoclonale_sierica": string (optional),
+-   "immunofissazione_sierica": string (optional),
+-   "immunofissazione_urinaria": string (optional)
 
 ### GET http://localhost:8000/api/esami-laboratorio/699/
 
 ### PUT http://localhost:8000/api/esami-laboratorio/699/
 ```json
 {
+    "paziente_id": 699,
     "operatore_id": 1992,
     "status": "complete",
+    "created_at": "2024-11-15T10:44:40.008795Z",
+    "updated_at": "2024-11-15T10:44:40.502434Z",
     "cpk": 150.0,
     "troponina_hs": 0.012,
     "nt_pro_bnp": 125.0,

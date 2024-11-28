@@ -120,18 +120,23 @@ class BaseDocument(Document):
 # Embedded Documents for FattoriRischio
 class IpertensioneArteriosa(EmbeddedDocument):
     presente = BooleanField(required=True)
+    anno_insorgenza = IntField(min_value=0)
     anni = IntField(min_value=0)
 
 class Dislipidemia(EmbeddedDocument):
     tipo = EnumField(DislipidemiaType, required=True)
+    anno_insorgenza = IntField(min_value=0)
     anni = IntField(min_value=0)
 
 class DiabeteMellito(EmbeddedDocument):
     presente = BooleanField(required=True)
+    anno_insorgenza = IntField(min_value=0)
     anni = IntField(min_value=0)
 
 class Fumo(EmbeddedDocument):
     stato = EnumField(FumoStatus, required=True)
+    anno_inizio = IntField(min_value=0)
+    anno_interruzione = IntField(min_value=0)
     anni = IntField(min_value=0)
     anni_smesso = IntField(min_value=0)
 

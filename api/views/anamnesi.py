@@ -116,19 +116,31 @@ class BaseAnamnesisView(APIView):
 
                 # Update common fields
                 instance.operatore_id = validated_data['operatore_id']
-                instance.datamanager_id = validated_data['datamanager_id']
+                try:
+                    instance.datamanager_id = validated_data['datamanager_id']
+                except KeyError:
+                    pass
+                
                 instance.status = validated_data['status']
                 instance.updated_at = datetime.utcnow()
                 
                 instance.save()
                 response_status = status.HTTP_200_OK
             else:
+                common_args = dict(
+                    paziente_id=pid,
+                    operatore_id=validated_data['operatore_id'],
+                    status=validated_data['status']
+                )
+                try:
+                    common_args['datamanager_id'] =  validated_data['datamanager_id']
+                except KeyError:
+                    pass
+
                 # Create new instance based on model type
                 if self.model == FattoriRischio:
                     instance = FattoriRischio(
-                        paziente_id=pid,
-                        operatore_id=validated_data['operatore_id'],
-                        status=validated_data['status'],
+                        **common_args,
                         ipertensione_arteriosa=IpertensioneArteriosa(**validated_data['ipertensione_arteriosa']),
                         dislipidemia=Dislipidemia(**validated_data['dislipidemia']),
                         diabete_mellito=DiabeteMellito(**validated_data['diabete_mellito']),
@@ -137,9 +149,7 @@ class BaseAnamnesisView(APIView):
                     )
                 elif self.model == Comorbidita:
                     instance = Comorbidita(
-                        paziente_id=pid,
-                        operatore_id=validated_data['operatore_id'],
-                        status=validated_data['status'],
+                        **common_args,
                         malattia_renale_cronica=MalattiaRenaleCronica(**validated_data['malattia_renale_cronica']),
                         bpco=validated_data['bpco'],
                         steatosi_epatica=SteatosiEpatica(**validated_data['steatosi_epatica']),
@@ -148,9 +158,7 @@ class BaseAnamnesisView(APIView):
                     )
                 elif self.model == Sintomatologia:
                     instance = Sintomatologia(
-                        paziente_id=pid,
-                        operatore_id=validated_data['operatore_id'],
-                        status=validated_data['status'],
+                        **common_args,
                         dolore_toracico=DoloreToracico(**validated_data['dolore_toracico']),
                         dispnea=Dispnea(**validated_data['dispnea']),
                         cardiopalmo=Cardiopalmo(**validated_data['cardiopalmo']),
@@ -159,9 +167,7 @@ class BaseAnamnesisView(APIView):
                     )
                 elif self.model == CoinvolgimentoMultisistemico:
                     instance = CoinvolgimentoMultisistemico(
-                        paziente_id=pid,
-                        operatore_id=validated_data['operatore_id'],
-                        status=validated_data['status'],
+                        **common_args,
                         sistema_nervoso=validated_data['sistema_nervoso'],
                         occhio=validated_data['occhio'],
                         orecchio=validated_data['orecchio'],
@@ -170,9 +176,7 @@ class BaseAnamnesisView(APIView):
                     )
                 elif self.model == TerapiaFarmacologica:
                     instance = TerapiaFarmacologica(
-                        paziente_id=pid,
-                        operatore_id=validated_data['operatore_id'],
-                        status=validated_data['status'],
+                        **common_args,
                         farmaci=validated_data['farmaci']
                     )
                 
@@ -273,6 +277,7 @@ class AnamnesiCompletaView(APIView):
             data = {
                 'paziente_id': patient_id,
                 'operatore_id': first_record.operatore_id,
+                'datamanager_id': first_record.datamanager_id,
                 'created_at': first_record.created_at,
                 'updated_at': max((r.updated_at for r in records.values() if r is not None), default=first_record.updated_at)
             }

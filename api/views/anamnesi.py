@@ -116,6 +116,7 @@ class BaseAnamnesisView(APIView):
 
                 # Update common fields
                 instance.operatore_id = validated_data['operatore_id']
+                instance.datamanager_id = validated_data['datamanager_id']
                 instance.status = validated_data['status']
                 instance.updated_at = datetime.utcnow()
                 

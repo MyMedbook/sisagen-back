@@ -5,6 +5,7 @@ from mongoengine import (
 )
 from datetime import datetime
 from enum import Enum
+from .base import common_indices
 
 # Status Enums
 class Status(str, Enum):
@@ -89,17 +90,15 @@ class BaseDocument(Document):
     """Base document class with common fields and metadata"""
     paziente_id = IntField(required=True)
     operatore_id = IntField(required=True)
+    datamanager_id = IntField()
+    struttura = StringField()
     status = EnumField(Status, default=Status.DRAFT)
     created_at = DateTimeField(default=datetime.utcnow)
     updated_at = DateTimeField(default=datetime.utcnow)
 
     meta = {
         'abstract': True,
-        'indexes': [
-            'paziente_id',
-            'operatore_id',
-            'created_at'
-        ]
+        'indexes': common_indices
     }
 
     def save(self, *args, **kwargs):

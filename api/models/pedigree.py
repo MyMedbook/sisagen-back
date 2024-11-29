@@ -6,6 +6,8 @@ from mongoengine import (
 )
 from datetime import datetime
 from enum import Enum
+from .base import BaseDocument, common_indices
+
 
 # Enums for Pedigree
 class Severita(str, Enum):
@@ -22,36 +24,6 @@ class Status(str, Enum):
     DRAFT = "draft"
     COMPLETE = "complete"
     ARCHIVED = "archived"
-
-# Base Document
-class BaseDocument(Document):
-    """Base document class with common fields"""
-    paziente_id = IntField(required=True)
-    operatore_id = IntField(required=True)
-    status = EnumField(Status, default=Status.DRAFT)
-    created_at = DateTimeField(default=datetime.utcnow)
-    updated_at = DateTimeField(default=datetime.utcnow)
-
-    meta = {
-        'abstract': True,
-        'indexes': [
-            'paziente_id',
-            'operatore_id',
-            'created_at'
-        ]
-    }
-
-    def save(self, *args, **kwargs):
-        self.updated_at = datetime.utcnow()
-        return super().save(*args, **kwargs)
-
-    def validate_patient(self):
-        if self.paziente_id <= 0:
-            raise ValueError("paziente_id must be positive")
-
-    def clean(self):
-        self.validate_patient()
-        super().clean()
 
 # Base Embedded Document for Family Members
 class BaseFamilyMember(EmbeddedDocument):
@@ -89,9 +61,7 @@ class Pedigree(BaseDocument):
     meta = {
         'collection': 'pedigree',
         'indexes': [
-            'paziente_id',
-            'operatore_id',
-            'created_at',
+            *common_indices,
             ('paziente_id', 'status')
         ]
     }

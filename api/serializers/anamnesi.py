@@ -36,6 +36,8 @@ class BaseAnamnesisSerializer(serializers.Serializer):
     """Base serializer with common fields"""
     paziente_id = serializers.IntegerField(required=True)
     operatore_id = serializers.IntegerField(required=True)
+    datamanager_id = serializers.IntegerField(required=True)
+    struttura = serializers.CharField(required=False, allow_blank=True)
     status = serializers.ChoiceField(
         choices=[(x.value, x.value) for x in Status], 
         default=Status.DRAFT

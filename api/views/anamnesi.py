@@ -5,7 +5,9 @@ from rest_framework.exceptions import NotFound, ValidationError
 from datetime import datetime
 import logging
 
-from api.models.anamnesi import Altro, Anemia, Cardiopalmo, DiabeteMellito, Dislipidemia, Dispnea, DoloreToracico, Fumo, IpertensioneArteriosa, MalattiaRenaleCronica, Sincope, SteatosiEpatica
+from api.models.anamnesifields import (
+    Altro, Anemia, Cardiopalmo, DiabeteMellito, Dislipidemia, Dispnea, DoloreToracico, 
+    Fumo, IpertensioneArteriosa, MalattiaRenaleCronica, Sincope, SteatosiEpatica)
 from api.models import (
     FattoriRischio, Comorbidita, Sintomatologia,
     CoinvolgimentoMultisistemico, TerapiaFarmacologica,
@@ -15,36 +17,11 @@ from api.serializers import (
     CoinvolgimentoMultisistemicoSer, TerapiaFarmacologicaSer,
     AnamnesiCompletaSer
 )
+from api.views.base import BaseSisagenView
 
 logger = logging.getLogger(__name__)
 
-class BaseAnamnesisView(APIView):
-    """Base view for handling anamnesis records"""
-    model = None
-    serializer_class = None
-
-    def validate_paziente_id(self, paziente_id):
-        """Validate and convert paziente_id to integer"""
-        try:
-            pid = int(paziente_id)
-            if pid <= 0:
-                raise ValidationError("paziente_id must be positive")
-            return pid
-        except ValueError:
-            raise ValidationError("paziente_id must be a valid integer")
-
-    def get_object(self, paziente_id):
-        """Get object with validated paziente_id"""
-        pid = self.validate_paziente_id(paziente_id)
-        try:
-            return self.model.objects(paziente_id=pid).first()
-        except Exception as e:
-            logger.error(f"Error fetching {self.model.__name__}: {str(e)}")
-            raise
-
-    def check_exists(self, paziente_id):
-        """Check if record exists for patient"""
-        return self.model.objects(paziente_id=paziente_id).count() > 0
+class BaseAnamnesisView(BaseSisagenView):
 
     def get(self, request, paziente_id):
         """Get anamnesis record"""

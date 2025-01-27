@@ -8,7 +8,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-class BasePatientView(APIView):
+class BaseSisagenView(APIView):
     """Base view for handling patient-related records"""
     model = None
     serializer_class = None
@@ -35,6 +35,9 @@ class BasePatientView(APIView):
     def check_exists(self, paziente_id):
         """Check if record exists for patient"""
         return self.model.objects(paziente_id=paziente_id).count() > 0
+
+
+class BasePatientView(BaseSisagenView):
 
     def get(self, request, paziente_id):
         """Get record"""

@@ -26,3 +26,10 @@ class BaseSerializer(serializers.Serializer):
         if value <= 0:
             raise serializers.ValidationError("operatore_id must be positive")
         return value
+
+    def to_internal_value(self, data):
+
+        if not data.get("datamanager_id"):
+            data["datamanager_id"] = data["operatore_id"]
+
+        return super().to_internal_value(data)

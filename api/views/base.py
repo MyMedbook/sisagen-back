@@ -31,8 +31,8 @@ class SisagenViewSet(ViewSet):
 
         instances = self.get_mongoquery()
 
-        if (patient_id := request.query_params.get('patient_id')):
-            instances = instances(paziente_id=patient_id)
+        if (paziente_id := request.query_params.get('paziente_id')):
+            instances = instances(paziente_id=paziente_id)
 
         if (operatore_id := request.query_params.get('operatore_id')):
             instances = instances(operatore_id=operatore_id)

@@ -93,7 +93,7 @@ class TerapiaViewSet(AnamnesiViewSet):
     embedded_fields = {}
 
 
-class AnamnesiCompletaNuView(APIView):
+class AnamnesiCompletaView(APIView):
     """View for handling complete anamnesis records"""
     
     def _get_latest(self, model, patient_id):

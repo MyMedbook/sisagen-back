@@ -1,4 +1,76 @@
-# MyMedBook - Sisagen Cardio
+<!-- omit from toc -->
+# MyMedBook: Sisagen-Cardio API
+- [General Usage](#general-usage)
+  - [Obtaining Token](#obtaining-token)
+  - [Common Headers for All Requests](#common-headers-for-all-requests)
+  - [Common fields for all document types](#common-fields-for-all-document-types)
+    - [Presenti in GET:](#presenti-in-get)
+    - [Presenti in POST e GET:](#presenti-in-post-e-get)
+    - [NON ANCORA IMPLEMENTATI](#non-ancora-implementati)
+  - [Common Endpoint Behaviour](#common-endpoint-behaviour)
+    - [create](#create)
+    - [list](#list)
+    - [retrieve](#retrieve)
+    - [latest](#latest)
+- [Anamnesi API Endpoints - Complete Examples](#anamnesi-api-endpoints---complete-examples)
+  - [1. Fattori Rischio](#1-fattori-rischio)
+    - [Campi](#campi)
+    - [create](#create-1)
+    - [latest](#latest-1)
+    - [retrieve](#retrieve-1)
+    - [list](#list-1)
+  - [2. Comorbidita](#2-comorbidita)
+    - [Campi:](#campi-1)
+    - [create](#create-2)
+    - [latest](#latest-2)
+    - [retrieve](#retrieve-2)
+    - [retrieve](#retrieve-3)
+  - [3. Sintomatologia](#3-sintomatologia)
+    - [Values:](#values)
+    - [create](#create-3)
+    - [latest](#latest-3)
+    - [retrieve](#retrieve-4)
+    - [retrieve](#retrieve-5)
+  - [4. Coinvolgimento Multisistemico](#4-coinvolgimento-multisistemico)
+    - [Values:](#values-1)
+    - [create](#create-4)
+    - [latest](#latest-4)
+    - [retrieve](#retrieve-6)
+    - [retrieve](#retrieve-7)
+  - [5. Terapia Farmacologica](#5-terapia-farmacologica)
+    - [Values:](#values-2)
+    - [create](#create-5)
+    - [latest](#latest-5)
+    - [retrieve](#retrieve-8)
+    - [retrieve](#retrieve-9)
+  - [Important Notes](#important-notes)
+- [Pedigree](#pedigree)
+    - [Valid Values:](#valid-values)
+    - [Base URL: http://localhost:8000/api/pedigree/{paziente\_id}/](#base-url-httplocalhost8000apipedigreepaziente_id)
+    - [GET http://localhost:8000/api/pedigree/699/](#get-httplocalhost8000apipedigree699)
+    - [PUT REQUEST](#put-request)
+    - [DELETE http://localhost:8000/api/pedigree/699/](#delete-httplocalhost8000apipedigree699)
+- [ECG](#ecg)
+    - [Valid Values :](#valid-values-)
+    - [GET REQUEST http://localhost:8000/api/ecg/699/](#get-request-httplocalhost8000apiecg699)
+    - [PUT REQUEST http://localhost:8000/api/ecg/699/](#put-request-httplocalhost8000apiecg699)
+- [GENETICA](#genetica)
+    - [Valid Values:](#valid-values-1)
+    - [GET REQUEST http://localhost:8000/api/genetica/699/](#get-request-httplocalhost8000apigenetica699)
+    - [PUT REQUEST http://localhost:8000/api/genetica/699/](#put-request-httplocalhost8000apigenetica699)
+    - [DELETE REQUEST http://localhost:8000/api/genetica/699/](#delete-request-httplocalhost8000apigenetica699)
+- [ECOCARDIOGRAMMA](#ecocardiogramma)
+    - [Valid Values:](#valid-values-2)
+    - [GET http://localhost:8000/api/ecocardiogramma/699/](#get-httplocalhost8000apiecocardiogramma699)
+    - [PUT http://localhost:8000/api/ecocardiogramma/699/](#put-httplocalhost8000apiecocardiogramma699)
+    - [DELETE http://localhost:8000/api/ecocardiogramma/699/](#delete-httplocalhost8000apiecocardiogramma699)
+- [ESAMI LABORATORIO](#esami-laboratorio)
+    - [Valid Values:](#valid-values-3)
+    - [GET http://localhost:8000/api/esami-laboratorio/699/](#get-httplocalhost8000apiesami-laboratorio699)
+    - [PUT http://localhost:8000/api/esami-laboratorio/699/](#put-httplocalhost8000apiesami-laboratorio699)
+    - [DELETE http://localhost:8000/api/esami-laboratorio/699/](#delete-httplocalhost8000apiesami-laboratorio699)
+
+# General Usage
 ## Obtaining Token
 ```http
 POST https://medbooksrl.onrender.com/auth/token/
@@ -11,20 +83,91 @@ password: ******
 client_id:it.netfarm.mymedbook.web
 client_secret:
 ```
-## Anamnesi API Endpoints - Complete Examples
 
 ## Common Headers for All Requests
 ```
 Authorization: Bearer $accessToken
 Content-Type: application/json
 ```
-### Common Values: 
-status:
-- "draft"
-- "complete"
-- "archived"
+
+## Common fields for all document types
+
+### Presenti in GET:
+```json
+{
+    "_id": {"oid": str}
+        // id casuale identificativo interno utilizzato da MongoDB
+        
+    "created_at": {"$date": int}
+        // Data di creazione del documento, espressa in unix time 
+        
+    "updated_at": {"$date": int}
+        // Data dell'aggiornamento più recente del documento, espressa in unix time [FORSE DA DEPRECARE??]
+}
+```
+
+### Presenti in POST e GET:
+```json
+{
+    "paziente_id": int 
+        // Codice id utente del paziente a cui appartiene il referto.
+
+    "operatore_id": int
+        // Codice id utente dello specialista che ha effettuato la visita.
+
+    "datamanager_id": int
+        // Codice id utente della persona che ha stilato il report digitale. (default: operatore_id)
+
+    "status": "draft" | "complete" | "archived"
+        // Status del referto [NON ANCORA UTILIZZATO] 
+}
+```
+
+### NON ANCORA IMPLEMENTATI
+I seguenti campi sono previsti dalla logica richiesta dal cliente ma non sono ancora implementati in quanto richiedono interfaccia più diretta con il server di autenticazione.
+```json
+{
+    "struttura": str
+        // Nome della struttura che ha rilasciato il referto.
+    "anagrafica": ???
+        // Anagrafica del paziente.
+}
+```
+
+## Common Endpoint Behaviour
+
+La maggior parte degli endpoint è strutturata allo stesso identico modo e supporta i seguenti metodi. Al momento non è possibile cancellare o modificare documenti una volta creati.
+
+### create
+```POST {prefix}/```
+
+Crea un nuovo documento di tipo {prefix} a partire dal body della richiesta. Restituisce il documento salvato.
+
+### list
+```GET {prefix}/```
+
+Restituisce tutti i documenti della tipologia associata a {prefix}. Permette anche la ricerca per vari criteri:
+- paziente_id
+- operatore_id
+- datamanager_id
+
+### retrieve
+```GET {prefix}/{paziente_id}/```
+
+Restituisce tutti i documenti della tipologia associata a {prefix}, relativi al paziente con id {paziente_id}.
+
+### latest
+```GET {prefix}/{paziente_id}/latest/```
+
+Restituisce il più recente documento della tipologia associata a {prefix} relativo al paziente con id {paziente_id}.
+
+# Anamnesi API Endpoints - Complete Examples
 
 ## 1. Fattori Rischio
+
+Base URL: `http://localhost:8000/api/anamnesi/fattori-rischio/`
+
+### Campi
 dislipidemia.tipo:
 - "no"
 - "ipercolesterolemia"
@@ -47,78 +190,94 @@ distiroidismo:
 - "ipertiroidismo"
 - "tiroidectomia"
 
-Base URL: `http://localhost:8000/api/anamnesi/fattori-rischio/{paziente_id}/`
 
-### GET Request
-```http
-GET http://localhost:8000/api/anamnesi/fattori-rischio/699/
-```
 
-Response (200 OK):
+### create
+```POST http://localhost:8000/api/anamnesi/fattori-rischio/```
+
+body:
 ```json
 {
-    "status": "complete",
-    "paziente_id": 699,
+    "paziente_id": 46993,
     "operatore_id": 1992,
     "status": "complete",
-    "created_at": "2024-03-20T10:30:00Z",
-    "updated_at": "2024-03-20T10:30:00Z",
     "ipertensione_arteriosa": {
         "presente": true,
-        "anni": 5
+        "anno_insorgenza": 2020
     },
     "dislipidemia": {
         "tipo": "ipercolesterolemia",
-        "anni": 3
+        "anno_insorgenza": 2020
     },
     "diabete_mellito": {
-        "presente": false,
-        "anni": 0
+        "presente": false
     },
     "fumo": {
         "stato": "passato",
-        "anni": 10,
-        "anni_smesso": 2
+        "anno_inizio": 2009,
+        "anno_interruzione": 2011
     },
     "obesita": "normopeso"
-
 }
 ```
 
-### PUT Request
-```http
-PUT http://localhost:8000/api/anamnesi/fattori-rischio/699/
+### latest
+```GET http://localhost:8000/api/anamnesi/fattori-rischio/{paziente_id}/latest/```
 
+response:
+```json
 {
+    "_id": {
+        "$oid": "6798fd23cfb5bc93554c40c9"
+    },
+    "paziente_id": 46993,
     "operatore_id": 1992,
+    "datamanager_id": 1992,
     "status": "complete",
+    "created_at": {
+        "$date": 1738079522730
+    },
+    "updated_at": {
+        "$date": 1738079522730
+    },
     "ipertensione_arteriosa": {
         "presente": true,
+        "anno_insorgenza": 2020,
         "anni": 5
     },
     "dislipidemia": {
         "tipo": "ipercolesterolemia",
-        "anni": 3
+        "anno_insorgenza": 2020,
+        "anni": 5
     },
     "diabete_mellito": {
-        "presente": false,
-        "anni": 0
+        "presente": false
     },
     "fumo": {
         "stato": "passato",
-        "anni": 10,
-        "anni_smesso": 2
+        "anno_inizio": 2009,
+        "anno_interruzione": 2011,
+        "anni": 2,
+        "anni_smesso": 14
     },
     "obesita": "normopeso"
 }
 ```
 
-### DELETE Request
-```http
-DELETE http://localhost:8000/api/anamnesi/fattori-rischio/699/
-```
+### retrieve
+```GET http://localhost:8000/api/anamnesi/fattori-rischio/{paziente_id}/```
+
+Response: (come ```latest```, ma array)
+
+### list
+```GET http://localhost:8000/api/anamnesi/fattori-rischio/```
+
+Response: (come ```latest```, ma array)
+
 ## 2. Comorbidita 
-### Values:
+Base URL: `http://localhost:8000/api/anamnesi/fattori-rischio/`
+
+### Campi:
 malattia_renale_cronica:
   presente: boolean
   stadio: number (0-5)
@@ -139,22 +298,16 @@ distiroidismo:
 - "ipertiroidismo"
 - "tiroidectomia"
 
-### Base URL: `http://localhost:8000/api/anamnesi/comorbidita/{paziente_id}/`
+### create
+```POST http://localhost:8000/api/comorbidita/fattori-rischio/```
 
-### GET Request
-```http
-GET http://localhost:8000/api/anamnesi/comorbidita/699/
-```
-
-Response (200 OK):
+body:
 ```json
 {
     "status": "complete",
     "paziente_id": 699,
     "operatore_id": 1992,
-    "status": "complete",
-    "created_at": "2024-03-20T10:30:00Z",
-    "updated_at": "2024-03-20T10:30:00Z",
+    "datamanager_id": 563,
     "malattia_renale_cronica": {
         "presente": true,
         "stadio": 2
@@ -172,13 +325,25 @@ Response (200 OK):
 }
 ```
 
-### PUT Request
-```http
-PUT http://localhost:8000/api/anamnesi/comorbidita/699/
+### latest
+```GET http://localhost:8000/api/anamnesi/comorbidita/{paziente_id}/latest/```
 
+response:
+```json
 {
+    "_id": {
+        "$oid": "6798fe84cfb5bc93554c40ca"
+    },
+    "paziente_id": 699,
     "operatore_id": 1992,
+    "datamanager_id": 563,
     "status": "complete",
+    "created_at": {
+        "$date": 1738079875960
+    },
+    "updated_at": {
+        "$date": 1738079875960
+    },
     "malattia_renale_cronica": {
         "presente": true,
         "stadio": 2
@@ -196,12 +361,19 @@ PUT http://localhost:8000/api/anamnesi/comorbidita/699/
 }
 ```
 
-### DELETE Request
-```http
-DELETE http://localhost:8000/api/anamnesi/comorbidita/699/
-```
+### retrieve
+```GET http://localhost:8000/api/anamnesi/comorbidita/{paziente_id}/```
+
+Response: (come ```latest```, ma array)
+
+### retrieve
+```GET http://localhost:8000/api/anamnesi/comorbidita/```
+
+Response: (come ```latest```, ma array)
 
 ## 3. Sintomatologia
+
+Base URL: `http://localhost:8000/api/anamnesi/sintomatologia/`
 
 ### Values:
 dolore_toracico.tipo:
@@ -221,22 +393,15 @@ sincope.verosimile:
 - "vasovagale"
 - "aritmica"
 
-Base URL: `http://localhost:8000/api/anamnesi/sintomatologia/{paziente_id}/`
+### create
+```POST http://localhost:8000/api/sintomatologia/fattori-rischio/```
 
-### GET Request
-```http
-GET http://localhost:8000/api/anamnesi/sintomatologia/699/
-```
-
-Response (200 OK):
+body:
 ```json
 {
-    "status": "complete",
-    "paziente_id": 699,
     "operatore_id": 1992,
+    "paziente_id": 46933,
     "status": "draft",
-    "created_at": "2024-03-20T10:30:00Z",
-    "updated_at": "2024-03-20T10:30:00Z",
     "dolore_toracico": {
         "presente": true,
         "tipo": "tipico",
@@ -261,13 +426,25 @@ Response (200 OK):
 }
 ```
 
-### PUT Request
-```http
-PUT http://localhost:8000/api/anamnesi/sintomatologia/699/
+### latest
+```GET http://localhost:8000/api/anamnesi/sintomatologia/{paziente_id}/latest/```
 
+response:
+```json
 {
+    "_id": {
+        "$oid": "6798ff19cfb5bc93554c40cb"
+    },
+    "paziente_id": 46933,
     "operatore_id": 1992,
+    "datamanager_id": 1992,
     "status": "draft",
+    "created_at": {
+        "$date": 1738080025267
+    },
+    "updated_at": {
+        "$date": 1738080025267
+    },
     "dolore_toracico": {
         "presente": true,
         "tipo": "tipico",
@@ -292,14 +469,19 @@ PUT http://localhost:8000/api/anamnesi/sintomatologia/699/
 }
 ```
 
-### DELETE Request
-```http
-DELETE http://localhost:8000/api/anamnesi/sintomatologia/699/
-```
+### retrieve
+```GET http://localhost:8000/api/anamnesi/sintomatologia/{paziente_id}/```
 
-Response (204 No Content)
+Response: (come ```latest```, ma array)
+
+### retrieve
+```GET http://localhost:8000/api/anamnesi/sintomatologia/```
+
+Response: (come ```latest```, ma array)
+
 
 ## 4. Coinvolgimento Multisistemico
+Base URL: `http://localhost:8000/api/anamnesi/coinvolgimento/`
 
 ### Values:
 
@@ -333,36 +515,14 @@ pelle:
 - "angiocheratoma"
 - "cheratodermia"
 
-Base URL: `http://localhost:8000/api/anamnesi/coinvolgimento-multisistemico/{paziente_id}/`
+### create
+```POST http://localhost:8000/api/coinvolgimento/fattori-rischio/```
 
-### GET Request
-```http
-GET http://localhost:8000/api/anamnesi/coinvolgimento-multisistemico/699/
-```
-
-Response (200 OK):
+body:
 ```json
 {
-    "status": "complete", "data": {
-    "paziente_id": 699,
     "operatore_id": 1992,
-    "status": "draft",
-    "created_at": "2024-03-20T10:30:00Z",
-    "updated_at": "2024-03-20T10:30:00Z",
-    "sistema_nervoso": "difficolta_apprendimento",
-    "occhio": "ptosi_palpebrale",
-    "orecchio": "difficolta_apprendimento",
-    "sistema_muscoloscheletrico": "debolezza_muscolare",
-    "pelle": "angiocheratoma"}
-}
-```
-
-### PUT Request
-```http
-PUT http://localhost:8000/api/anamnesi/coinvolgimento-multisistemico/699/
-
-{
-    "operatore_id": 1992,
+    "paziente_id": 46933,
     "status": "draft",
     "sistema_nervoso": "difficolta_apprendimento",
     "occhio": "ptosi_palpebrale",
@@ -372,12 +532,46 @@ PUT http://localhost:8000/api/anamnesi/coinvolgimento-multisistemico/699/
 }
 ```
 
-### DELETE Request
-```http
-DELETE http://localhost:8000/api/anamnesi/coinvolgimento-multisistemico/699/
+### latest
+```GET http://localhost:8000/api/anamnesi/coinvolgimento/{paziente_id}/latest/```
+
+response:
+```json
+{
+    "_id": {
+        "$oid": "6798ff9ecfb5bc93554c40cc"
+    },
+    "paziente_id": 46933,
+    "operatore_id": 1992,
+    "datamanager_id": 1992,
+    "status": "draft",
+    "created_at": {
+        "$date": 1738080158541
+    },
+    "updated_at": {
+        "$date": 1738080158541
+    },
+    "sistema_nervoso": "difficolta_apprendimento",
+    "occhio": "ptosi_palpebrale",
+    "orecchio": "difficolta_apprendimento",
+    "sistema_muscoloscheletrico": "debolezza_muscolare",
+    "pelle": "angiocheratoma"
+}
 ```
 
-# 5. Terapia Farmacologica
+### retrieve
+```GET http://localhost:8000/api/anamnesi/coinvolgimento/{paziente_id}/```
+
+Response: (come ```latest```, ma array)
+
+### retrieve
+```GET http://localhost:8000/api/anamnesi/coinvolgimento/```
+
+Response: (come ```latest```, ma array)
+
+## 5. Terapia Farmacologica
+
+BASE URL: `http://localhost:8000/api/anamnesi/terapia-farmacologica/699/`
 
 ### Values:
 farmaci: array of strings
@@ -385,19 +579,16 @@ farmaci: array of strings
 - Array can be empty but must be present
 - No specific restrictions on medication names
 
-### GET Request
-```http
-GET http://localhost:8000/api/anamnesi/terapia-farmacologica/699/
-```
+### create
+```POST http://localhost:8000/api/anamnesi/terapia/```
 
-Response (200 OK):
+body:
 ```json
 {
-    "paziente_id": 699,
     "operatore_id": 1992,
+    "paziente_id": 46933,
+    "updated_at": "prova",
     "status": "complete",
-    "created_at": "2024-11-22T09:11:50.007000Z",
-    "updated_at": "2024-11-22T09:11:50.007000Z",
     "farmaci": [
         "Metoprololo 100mg",
         "Ramipril 5mg",
@@ -407,13 +598,25 @@ Response (200 OK):
 }
 ```
 
-### PUT Request
-```http
-PUT http://localhost:8000/api/anamnesi/terapia-farmacologica/699/
+### latest
+```GET http://localhost:8000/api/anamnesi/terapia/{paziente_id}/latest/```
 
+response:
+```json
 {
+    "_id": {
+        "$oid": "67990033cfb5bc93554c40cd"
+    },
+    "paziente_id": 46933,
     "operatore_id": 1992,
+    "datamanager_id": 1992,
     "status": "complete",
+    "created_at": {
+        "$date": 1738080306817
+    },
+    "updated_at": {
+        "$date": 1738080306817
+    },
     "farmaci": [
         "Metoprololo 100mg",
         "Ramipril 5mg",
@@ -423,10 +626,15 @@ PUT http://localhost:8000/api/anamnesi/terapia-farmacologica/699/
 }
 ```
 
-### DELETE Request
-```http
-DELETE http://localhost:8000/api/anamnesi/terapia-farmacologica/699/
-```
+### retrieve
+```GET http://localhost:8000/api/anamnesi/terapia/{paziente_id}/```
+
+Response: (come ```latest```, ma array)
+
+### retrieve
+```GET http://localhost:8000/api/anamnesi/terapia/```
+
+Response: (come ```latest```, ma array)
 
 ## Important Notes
 - 200: Successful GET/PUT

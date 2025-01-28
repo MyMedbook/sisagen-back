@@ -9,6 +9,7 @@ from api.views.ecocardiogramma import EcocardiogrammaView
 from api.views.esami_laboratorio import EsamiLaboratorioView
 from api.views.genetica import GeneticaView
 from api.views.pedigree import PedigreeView
+from api.views.anamnesi_nu import *
 from api.views.report import ReportView, QuickReportView
 
 # Custom path converter for positive integers
@@ -26,7 +27,7 @@ register_converter(PositiveIntConverter, 'pos_int')
 
 # URL patterns grouped by feature
 class AnamnesiURLs:
-    BASE = 'anamnesi'
+    BASE = 'anamnesi_old'
     SECTIONS = {
         'fattori-rischio': FattoriRischioView,
         'comorbidita': ComorbiditaView,
@@ -35,8 +36,20 @@ class AnamnesiURLs:
         'terapia-farmacologica': TerapiaFarmacologicaView,
     }
 
+from rest_framework import routers
+
+router = routers.SimpleRouter()
+router.register(r'anamnesi/fattori-rischio', FattoriRischioViewSet, basename = "fattori-rischio")
+router.register(r'anamnesi/comorbidita', ComorbiditaViewSet, basename = "comorbidita")
+router.register(r'anamnesi/sintomatologia', SintomatologiaViewSet, basename = "sintomatologia")
+router.register(r'anamnesi/coinvolgimento', CoinvolgimentoViewSet, basename = "coinvolgimento")
+router.register(r'anamnesi/terapia', TerapiaViewSet, basename = "terapia")
+
+urlpatterns = router.urls
+
 urlpatterns = [
     # Individual anamnesi section endpoints
+    *router.urls,
     *[
         path(
             f'{AnamnesiURLs.BASE}/{section}/<pos_int:paziente_id>/',
@@ -48,8 +61,8 @@ urlpatterns = [
     
     # Combined anamnesi endpoint
     path(
-        f'{AnamnesiURLs.BASE}/<pos_int:paziente_id>/',
-        AnamnesiCompletaView.as_view(),
+        f'anamnesi/<pos_int:paziente_id>/',
+        AnamnesiCompletaNuView.as_view(),
         name='anamnesi-completa'
     ),
     

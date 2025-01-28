@@ -1,12 +1,11 @@
-from rest_framework.exceptions import NotFound, ValidationError
 import logging
 from api.models.ecocardiogramma import Ecocardiogramma
 from api.serializers.ecocardiogramma import EcocardiogrammaSerializer
-from .base import BasePatientView
+from .base import SisagenViewSet
 
 logger = logging.getLogger(__name__)
-
-class EcocardiogrammaView(BasePatientView):
+ 
+class EcocardiogrammaViewSet(SisagenViewSet):
     """View for handling echocardiogram results"""
     model = Ecocardiogramma
     serializer_class = EcocardiogrammaSerializer

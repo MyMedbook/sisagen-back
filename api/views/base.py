@@ -1,12 +1,79 @@
 # api/views/base.py
 from rest_framework.views import APIView
+from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
+from rest_framework.decorators import action
 from rest_framework import status
 from rest_framework.exceptions import NotFound, ValidationError
+from mongoengine.queryset.visitor import Q
 from datetime import datetime
+from json import loads
 import logging
 
 logger = logging.getLogger(__name__)
+
+class SisagenViewSet(ViewSet):
+
+    model = None
+    serializer_class = None
+
+    def list(self, request):
+        instances = self.model.objects().order_by('-created_at')
+
+        if (patient_id := request.query_params.get('patient_id')):
+            instances = instances(paziente_id=patient_id)
+
+        if (operatore_id := request.query_params.get('operatore_id')):
+            instances = instances(operatore_id=operatore_id)
+
+        if (datamanager_id := request.query_params.get('datamanager_id')):
+            is_datamanager = Q(datamanager_id=datamanager_id)
+            operator_entered = Q(datamanager_id__exists=False) & Q(operatore_id=datamanager_id)
+            instances = instances(is_datamanager | operator_entered)
+        
+        return Response(loads(instances.to_json()))
+    
+    def create(self, request):
+        # data = request.data.copy()
+        # serializer = self.serializer_class(data=data)
+        # if not serializer.is_valid():
+        #         return Response(
+        #             serializer.errors, 
+        #             status=status.HTTP_400_BAD_REQUEST
+        #         )
+
+        data = request.data.copy()
+        serializer = self.serializer_class(data=data)
+        if not serializer.is_valid():
+                return Response(
+                    serializer.errors, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        
+        instance = self.model(**serializer.data)
+        try:
+            instance.validate()
+        except ValidationError as e:
+            Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        instance.save()
+    
+        return Response(
+            loads(instance.to_json()),
+            status=status.HTTP_200_OK if instance else status.HTTP_201_CREATED
+                )
+    
+    def retrieve(self, request, pk):
+        
+        instances = self.model.objects(paziente_id=pk).order_by('-created_at')
+
+        return Response(loads(instances.to_json()))
+    
+    @action(detail=True)
+    def latest(self, request, pk):
+        
+        instances = self.model.objects(paziente_id=pk).order_by('-created_at')
+
+        return Response(loads(instances.first().to_json()))
 
 class BaseSisagenView(APIView):
     """Base view for handling patient-related records"""

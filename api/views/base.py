@@ -6,19 +6,30 @@ from rest_framework.decorators import action
 from rest_framework import status
 from rest_framework.exceptions import NotFound, ValidationError
 from mongoengine.queryset.visitor import Q
+from api.models.base import BaseDocument
+from api.serializers.base import BaseSerializer
 from datetime import datetime
 from json import loads
 import logging
 
 logger = logging.getLogger(__name__)
 
+def to_json(query):
+    return loads(query.to_json())
+
+
 class SisagenViewSet(ViewSet):
 
-    model = None
-    serializer_class = None
+    model: BaseDocument = None
+    serializer_class: BaseSerializer = None
+
+    def get_mongoquery(self):
+
+        return self.model.objects().order_by('-created_at')
 
     def list(self, request):
-        instances = self.model.objects().order_by('-created_at')
+
+        instances = self.get_mongoquery()
 
         if (patient_id := request.query_params.get('patient_id')):
             instances = instances(paziente_id=patient_id)
@@ -31,16 +42,12 @@ class SisagenViewSet(ViewSet):
             operator_entered = Q(datamanager_id__exists=False) & Q(operatore_id=datamanager_id)
             instances = instances(is_datamanager | operator_entered)
         
-        return Response(loads(instances.to_json()))
+        if not instances.count():
+            raise NotFound(f"No documents of type {self.model.__name__} found matching query criteria.")
+
+        return Response(to_json(instances))
     
     def create(self, request):
-        # data = request.data.copy()
-        # serializer = self.serializer_class(data=data)
-        # if not serializer.is_valid():
-        #         return Response(
-        #             serializer.errors, 
-        #             status=status.HTTP_400_BAD_REQUEST
-        #         )
 
         data = request.data.copy()
         serializer = self.serializer_class(data=data)
@@ -58,22 +65,30 @@ class SisagenViewSet(ViewSet):
         instance.save()
     
         return Response(
-            loads(instance.to_json()),
-            status=status.HTTP_200_OK if instance else status.HTTP_201_CREATED
-                )
+            to_json(instance),
+            status.HTTP_201_CREATED
+            )
     
     def retrieve(self, request, pk):
         
-        instances = self.model.objects(paziente_id=pk).order_by('-created_at')
+        instances = self.get_mongoquery()
+        instances = instances = instances(paziente_id=pk)
+        if not instances.count():
+            raise NotFound(f"No documents of type {self.model.__name__} found for patient with id {pk}.")
 
-        return Response(loads(instances.to_json()))
+        return Response(to_json(instances))
     
     @action(detail=True)
     def latest(self, request, pk):
         
-        instances = self.model.objects(paziente_id=pk).order_by('-created_at')
+        instances = self.get_mongoquery()
+        instances = instances = instances(paziente_id=pk)
 
-        return Response(loads(instances.first().to_json()))
+        if not instances.count():
+            raise NotFound(f"No documents of type {self.model.__name__} found for patient with id {pk}.")
+
+        return Response(to_json(instances.first()))
+
 
 class BaseSisagenView(APIView):
     """Base view for handling patient-related records"""

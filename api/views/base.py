@@ -6,6 +6,7 @@ from rest_framework.decorators import action
 from rest_framework import status
 from rest_framework.exceptions import NotFound, ValidationError
 from mongoengine.queryset.visitor import Q
+from authentication.permissions import SisagenPermission
 from api.models.base import BaseDocument
 from api.serializers.base import BaseSerializer
 from datetime import datetime
@@ -20,6 +21,7 @@ def to_json(query):
 
 class SisagenViewSet(ViewSet):
 
+    permission_classes = [SisagenPermission]
     model: BaseDocument = None
     serializer_class: BaseSerializer = None
 

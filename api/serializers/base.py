@@ -6,7 +6,7 @@ class BaseSerializer(serializers.Serializer):
     """Base serializer with common fields"""
     paziente_id = serializers.IntegerField(required=True)
     operatore_id = serializers.IntegerField(required=True)
-    datamanager_id = serializers.IntegerField(required=False, allow_null=True)
+    datamanager_id = serializers.IntegerField(required=True)
     struttura = serializers.CharField(required=False, allow_null=True)
     status = serializers.ChoiceField(
         choices=[(x.value, x.value) for x in Status], 
@@ -29,7 +29,6 @@ class BaseSerializer(serializers.Serializer):
 
     def to_internal_value(self, data):
 
-        if not data.get("datamanager_id"):
-            data["datamanager_id"] = data["operatore_id"]
+        data["datamanager_id"] = self.context["request"].user.pk
 
         return super().to_internal_value(data)

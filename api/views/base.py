@@ -50,7 +50,7 @@ class SisagenViewSet(ViewSet):
     def create(self, request):
 
         data = request.data.copy()
-        serializer = self.serializer_class(data=data)
+        serializer = self.serializer_class(data=data, context={'request': request})
         if not serializer.is_valid():
                 return Response(
                     serializer.errors, 

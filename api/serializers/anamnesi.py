@@ -13,8 +13,9 @@ from api.serializers.base import BaseSerializer as BaseAnamnesisSerializer
 # preprocess data for serializers with associated beginning year
 def preprocess_insorgenza(data):
     
-    current_year = date.today().year
-    if not 'anni' in data.keys() or not data['anni']:
+    
+    if not data.get("anni"):
+        current_year = date.today().year
         data['anni'] = current_year - data['anno_insorgenza']
     
     return data
@@ -23,18 +24,18 @@ def preprocess_insorgenza(data):
 def preprocess_fumo(data):
     
     current_year = date.today().year
-    inizio_present = 'anno_inizio' in data.keys() and data['anno_inizio']
-    interruzione_present = 'anno_interruzione' in data.keys() and data['anno_interruzione']
+    inizio =  data.get('anno_inizio')
+    interruzione = data.get('anno_interruzione')
 
-    if inizio_present and not interruzione_present:
-        if not 'anni' in data.keys() or not data['anni']: 
-            data['anni'] = current_year - data['anno_inizio']
+    if inizio and not interruzione:
+        if not data.get("anni"): 
+            data['anni'] = current_year - inizio
 
-    if inizio_present and interruzione_present:
-        if not 'anni' in data.keys() or not data['anni']:
-            data['anni'] = data['anno_interruzione'] - data['anno_inizio']
-        if not 'anni_smesso' in data.keys() or not data['anni_smesso']: 
-            data['anni_smesso'] = current_year - data['anno_interruzione']
+    if inizio and interruzione:
+        if not data.get("anni"):
+            data['anni'] = interruzione - inizio
+        if not data.get("anni_smesso"): 
+            data['anni_smesso'] = current_year - interruzione
     
     return data
 

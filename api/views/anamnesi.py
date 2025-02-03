@@ -60,7 +60,7 @@ class ComorbiditaViewSet(AnamnesiViewSet):
     model = Comorbidita
     serializer_class = ComorbiditaSer
     embedded_fields = {
-        "malattia_renale_cronica" : MalattiaRenaleCronica,
+        "malattia_renale" : MalattiaRenaleCronica,
         "steatosi_epatica" : SteatosiEpatica,
         "anemia" : Anemia
     }

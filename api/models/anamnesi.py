@@ -20,7 +20,7 @@ class FattoriRischio(BaseDocument):
     meta = {'collection': 'fattori_rischio'}
 
 class Comorbidita(BaseDocument):
-    malattia_renale_cronica = EmbeddedDocumentField(af.MalattiaRenaleCronica)
+    malattia_renale = EmbeddedDocumentField(af.MalattiaRenaleCronica)
     bpco = BooleanField()
     steatosi_epatica = EmbeddedDocumentField(af.SteatosiEpatica)
     anemia = EmbeddedDocumentField(af.Anemia)

@@ -158,7 +158,7 @@ class AnemiaSer(serializers.Serializer):
     tipo = serializers.CharField(required=False)
 
 class ComorbiditaSer(BaseAnamnesisSerializer):
-    malattia_renale_cronica = MalattiaRenaleCronicaSer()
+    malattia_renale = MalattiaRenaleCronicaSer()
     bpco = serializers.BooleanField()
     steatosi_epatica = SteatosiEpaticaSer()
     anemia = AnemiaSer()

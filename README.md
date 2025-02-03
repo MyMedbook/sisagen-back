@@ -116,7 +116,7 @@ Content-Type: application/json
         // Codice id utente dello specialista che ha effettuato la visita.
 
     "datamanager_id": int
-        // Codice id utente della persona che ha stilato il report digitale. (default: operatore_id)
+        // Codice id utente della persona che ha stilato il report digitale. (default: request.user.pk)
 
     "status": "draft" | "complete" | "archived"
         // Status del referto [NON ANCORA UTILIZZATO] 
@@ -168,28 +168,43 @@ Restituisce il più recente documento della tipologia associata a {prefix} relat
 Base URL: `http://localhost:8000/api/anamnesi/fattori-rischio/`
 
 ### Campi
-dislipidemia.tipo:
-- "no"
-- "ipercolesterolemia"
-- "ipertrigliceridemia"
-- "mista"
+**ipertensione_arteriosa**:
+- **presente** (*bool*)
+- **anno_insorgenza** (*int*): (solo se tipo != no)
+- **anni** (*int*): (solo se tipo != no; se assente viene calcolato in automatico sulla base di anno_insorgenza e data corrente).
 
-fumo.stato:
-- "no"
-- "si"
-- "passato"
+**dislipidemia**: 
+- **tipo** (*choice*):
+  - "no"
+  - "ipercolesterolemia"
+  - "ipertrigliceridemia"
+  - "mista"
+- **anno_insorgenza** (*int*): (solo se tipo != no)
+- **anni** (*int*): (solo se tipo != no; se assente viene calcolato in automatico sulla base di anno_insorgenza e data corrente).
 
-obesita:
+**diabete_mellito**:
+- **presente** (*bool*)
+- **anno_insorgenza** (*int*): (solo se tipo != no)
+- **anni** (*int*): (solo se tipo != no; se assente viene calcolato in automatico sulla base di anno_insorgenza e data corrente).
+
+**fumo**:
+- **stato** (*choice*):
+  - "no"
+  - "si"
+  - "passato"
+- **anno_inizio** (*int*):
+Anno in cui il paziente ha iniziato a fumare (presente solo se fumo.stato == si | passato).
+- **anno_interruzione** (*int*): 
+Anno in cui il paziente ha smesso di fumare (presente solo se fumo.stato == passato).
+- **anni** (*int*): 
+Numero di anni in cui il paziente ha fumato (presente solo se fumo.stato == si | passato; se non specificato dal datamanager viene calcolato in automatico sulla base dell'anno corrente o di fumo.anno_interruzione).
+- **anni_smesso** (*int*): 
+Numero di anni da quando il paziente ha smesso di fumare (presente solo se fumo.stato == passato; se non specificato dal datamanager viene calcolato in automatico sulla base dell'anno corrente).
+
+**obesita** (*choice*):
 - "normopeso"
 - "sovrappeso"
 - "obeso"
-
-distiroidismo:
-- "no"
-- "ipotiroidismo"
-- "ipertiroidismo"
-- "tiroidectomia"
-
 
 
 ### create
@@ -278,21 +293,21 @@ Response: (come ```latest```, ma array)
 Base URL: `http://localhost:8000/api/anamnesi/fattori-rischio/`
 
 ### Campi:
-malattia_renale_cronica:
-  presente: boolean
-  stadio: number (0-5)
+**malattia_renale**:
+- **presente** (*boolean*).
+- **stadio** (*int 0-5*): (solo se presente == True).
 
-steatosi_epatica:
-  presente: boolean
-  grado: string (optional)
+**bpco** (*boolean*).
 
-anemia:
-  presente: boolean
-  tipo: string (optional)
+**steatosi_epatica**:
+- **presente** (*boolean*).
+- **grado** (*string*): (solo se presente == True).
 
-bpco: boolean
+**anemia**:
+- **presente** (*boolean*).
+- **tipo** (*string*): (solo se presente == True).
 
-distiroidismo:
+**distiroidismo** (*choice*):
 - "no"
 - "ipotiroidismo"
 - "ipertiroidismo"
@@ -308,7 +323,7 @@ body:
     "paziente_id": 699,
     "operatore_id": 1992,
     "datamanager_id": 563,
-    "malattia_renale_cronica": {
+    "malattia_renale": {
         "presente": true,
         "stadio": 2
     },
@@ -344,7 +359,7 @@ response:
     "updated_at": {
         "$date": 1738079875960
     },
-    "malattia_renale_cronica": {
+    "malattia_renale": {
         "presente": true,
         "stadio": 2
     },
@@ -376,22 +391,38 @@ Response: (come ```latest```, ma array)
 Base URL: `http://localhost:8000/api/anamnesi/sintomatologia/`
 
 ### Values:
-dolore_toracico.tipo:
-- "tipico"
-- "atipico"
+**dolore_toracico**:
+- **presente** (*boolean*).
+- **tipo** (*choice*): (solo se presente == True)
+  - "tipico"
+  - "atipico"
+- **frequenza** (*choice*): (solo se presente == True)
+  - "raro"
+  - "frequente"
 
-frequenza:
-- "raro"
-- "frequente"
+**dispnea**:
+- **presente** (*boolean*).
+- **classe_nyha** (*int 1-4*): (solo se presente == True)
 
-sincope.tipo:
-- "no"
-- "lipotimia"
-- "sincope"
+**cardiopalmo**:
+- **presente** (*boolean*).
+- **frequenza** (*choice*): (solo se presente == True)
+  - "raro"
+  - "frequente"
 
-sincope.verosimile:
-- "vasovagale"
-- "aritmica"
+**sincope**:
+- **tipo** (*choice*):
+  - "no"
+  - "lipotimia"
+  - "sincope"
+- **verosimile** (*choice*): (solo se tipo != "no")
+  - "vasovagale"
+  - "aritmica"
+
+**altro**:
+- **presente** (*boolean*).
+- **descrizione** (*string*): (solo se presente == True)
+
 
 ### create
 ```POST http://localhost:8000/api/sintomatologia/fattori-rischio/```
@@ -485,31 +516,31 @@ Base URL: `http://localhost:8000/api/anamnesi/coinvolgimento/`
 
 ### Values:
 
-sistema_nervoso:
+**sistema_nervoso** (*choice*):
 - "no"
 - "difficolta_apprendimento"
 - "ritardo_psicomotorio"
 - "atassia"
 - "parestesie"
 
-occhio:
+**occhio** (*choice*):
 - "no"
 - "ipovisione"
 - "ptosi_palpebrale"
 
-orecchio:
+**orecchio** (*choice*):
 - "no"
 - "difficolta_apprendimento"
 - "ritardo_psicomotorio"
 - "atassia"
 
-sistema_muscoloscheletrico:
+**sistema_muscoloscheletrico** (*choice*):
 - "no"
 - "miotonia"
 - "tunnel_carpale_bilaterale"
 - "debolezza_muscolare"
 
-pelle:
+**pelle** (*choice*):
 - "no"
 - "lentiggini"
 - "angiocheratoma"
@@ -574,7 +605,7 @@ Response: (come ```latest```, ma array)
 BASE URL: `http://localhost:8000/api/anamnesi/terapia-farmacologica/699/`
 
 ### Values:
-farmaci: array of strings
+**farmaci** (*string[]*): 
 - Each entry should be a valid medication name
 - Array can be empty but must be present
 - No specific restrictions on medication names
@@ -647,20 +678,35 @@ Response: (come ```latest```, ma array)
 
 # Pedigree
 ### Valid Values:
-status:
-- "draft"
-- "complete"
-- "archived"
 
-severita:
-- "lieve"
-- "severa"
+*Pedigree* utilizza le seguenti strutture dati per rappresentare i vari familiari immediati:
+***FamilyMemberSerializer***:
+- **stessa_malattia** (*boolean*)
+- **eta_esordio** (*int*)
+- **severita** (*choice*):
+  - "lieve"
+  - "severa"
+- **morte_improvvisa** (*boolean*)
+- **eta_morte** (*int*)
+- **device** (*choice*):
+  - "no"
+  - "pm" (pacemaker)
+  - "icd" (implantable cardioverter-defibrillator)
+  - "crt" (cardiac resynchronization therapy)
 
-device:
-- "no"
-- "pm" (pacemaker)
-- "icd" (implantable cardioverter-defibrillator)
-- "crt" (cardiac resynchronization therapy)
+***NumberedFamilyMemberSerializer***:
+- (stessi campi di *family member generico*)
+- **numero** (*int > 1*)
+
+I familiari inclusi in *Pedigree* sono:
+- **padre** (*FamilyMemberSerializer*)
+- **madre** (*FamilyMemberSerializer*)
+- **nonno_paterno** (*FamilyMemberSerializer*)
+- **nonna_paterna** (*FamilyMemberSerializer*)
+- **nonno_materno** (*FamilyMemberSerializer*)
+- **nonna_materna** (*FamilyMemberSerializer*)
+- **fratelli** (*NumberedFamilyMemberSerializer*)
+- **figli** (*NumberedFamilyMemberSerializer*)
 
 ### Base URL: http://localhost:8000/api/pedigree/{paziente_id}/
 
@@ -761,18 +807,18 @@ device:
 # ECG
 
 ### Valid Values : 
-ritmo:
+**ritmo** (*choice*):
 - "ritmo_sinusale"
 - "fa"
 - "besv"
 - "bev"
 
-pr:
+**pr** (*choice*):
 - "nei_limiti"
 - "bav_i"
 - "corto_preeccitazione"
 
-qrs:
+**qrs** (*choice*):
 - "nei_limiti"
 - "ivs"
 - "onde_q"
@@ -780,9 +826,11 @@ qrs:
 - "bbs"
 - "bassi_voltaggi"
 
-rv.stato:
-- "nei_limiti"
-- "t_negative"
+**rv**:
+- **stato** (*choice*):
+  - "nei_limiti"
+  - "t_negative"
+- **dettagli** (*string* opzionale)
 
 ### GET REQUEST http://localhost:8000/api/ecg/699/
 
@@ -807,18 +855,20 @@ Request Body:
 # GENETICA
 
 ### Valid Values:
-trasmissione:
+**trasmissione** (*choice*):
 - "ad"
 - "ar"
 - "x_linked"
 - "materna"
 
-gene.tipo:
-- "patogenetica"
-- "prob_patogenetica"
-- "vus"
-- "prob_benigna"
-- "benigna"
+**gene**:
+- **nome** (*string*)
+- **tipo** (*choice*):
+  - "patogenetica"
+  - "prob_patogenetica"
+  - "vus"
+  - "prob_benigna"
+  - "benigna"
 
 
 ### GET REQUEST http://localhost:8000/api/genetica/699/
@@ -846,20 +896,35 @@ gene.tipo:
 
 ### Valid Values:
 All measurements must be positive numbers:
-- diametro_telediastolico_vs
-- spessore_siv
-- spessore_pp
-- diametro_anteroposteriore_as
-- volume_as
-- radice_aortica
-- aorta_ascendente
-- fe (must be between 0-100)
-- paps
-- lvot
 
-Gradiente Pressorio constraints:
-- medio and max must be positive
-- max must be greater than medio
+**diametro_telediastolico_vs** (*float > 0*).
+
+**spessore_siv** (*float > 0*).
+
+**spessore_pp** (*float > 0*).
+
+**diametro_anteroposteriore_as** (*float > 0*).
+
+**volume_as** (*float > 0*).
+
+**radice_aortica** (*float > 0*).
+
+**aorta_ascendente** (*float > 0*).
+
+**fe** (*float 0-100*).
+
+**paps** (*float > 0*).
+
+**lvot** (*float > 0*).
+
+**gp_aortico**:
+- **medio** (*float > 0*)
+- **max** (*float > medio*)
+
+**gp_mitralico**:
+- **medio** (*float > 0*)
+- **max** (*float > medio*)
+
 
 ### GET http://localhost:8000/api/ecocardiogramma/699/
 
@@ -901,33 +966,45 @@ Gradiente Pressorio constraints:
 
 ### Valid Values:
 All measurements must be positive numbers:
--    "paziente_id": integer,
--    "operatore_id": integer,
--    "status": string ["draft", "complete", "archived"],
--    "created_at": datetime (read-only),
--    "updated_at": datetime (read-only),
--    "cpk": float,                         // Creatine Phosphokinase
--    "troponina_hs": float,               // High-sensitivity Troponin
--    "nt_pro_bnp": float,                 // NT-proBNP
--    "d_dimero": float,                   // D-dimer
--    "creatinina": float,                 // Creatinine
--    "azotemia": float,                   // Blood Urea Nitrogen
--    "na": float,                         // Sodium
--    "k": float,                          // Potassium
--    "gfr": float,                        // Glomerular Filtration Rate
--    "albuminuria": float,                // Albuminuria
--    "alt": float,                        // Alanine Transaminase
--    "ast": float,                        // Aspartate Transaminase
--    "bilirubina": {
-       "totale": float,                 // Total Bilirubin
-       "diretta": float,                // Direct Bilirubin
-       "indiretta": float               // Indirect Bilirubin
-    },
--   "ggt": float,                        // Gamma-Glutamyl Transferase
--   "alfa_galattosidasi": float,         // Alpha-Galactosidase
--   "componente_monoclonale_sierica": string (optional),
--   "immunofissazione_sierica": string (optional),
--   "immunofissazione_urinaria": string (optional)
+
+**cpk** (*float > 0*): Creatine Phosphokinase
+
+**troponina_hs** (*float > 0*): High-sensitivity Troponin
+
+**nt_pro_bnp** (*float > 0*): NT-proBNP
+
+**d_dimero** (*float > 0*): D-dimer
+
+**creatinina** (*float > 0*): Creatinine
+
+**azotemia** (*float > 0*): Blood Urea Nitrogen
+
+**na** (*float > 0*): Sodium
+
+**k** (*float > 0*): Potassium
+
+**gfr** (*float > 0*): Glomerular Filtration Rate
+
+**albuminuria** (*float > 0*): Albuminuria
+
+**alt** (*float > 0*): Alanine Transaminase
+
+**ast** (*float > 0*): Aspartate Transaminase
+
+**bilirubina**:
+- **totale** (*float > 0*): Total Bilirubin
+- **diretta** (*float > 0*): Direct Bilirubin
+- **indiretta** (*float ~ totale - diretta*): Indirect Bilirubin
+
+**ggt** (*float > 0*): Gamma-Glutamyl Transferase
+
+**alfa_galattosidasi** (*float > 0*): Alpha-Galactosidase
+
+**componente_monoclonale_sierica** (*string*): opzionale
+
+**immunofissazione_sierica** (*string*): opzionale
+
+**immunofissazione_urinaria** (*string*): opzionale
 
 ### GET http://localhost:8000/api/esami-laboratorio/699/
 

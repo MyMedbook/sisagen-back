@@ -4,7 +4,7 @@ from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework import status
-from rest_framework.exceptions import NotFound, ValidationError
+from rest_framework.exceptions import NotFound, ValidationError, ParseError
 from mongoengine.queryset.visitor import Q
 from authentication.permissions import SisagenPermission
 from api.models.base import BaseDocument
@@ -28,6 +28,31 @@ class SisagenViewSet(ViewSet):
     def get_mongoquery(self):
 
         return self.model.objects().order_by('-created_at')
+    
+    def query_param_int(self, keyword, default=None):
+
+        param = self.request.query_params.get(keyword, default)
+
+        if not param:
+            return None
+        
+        try:
+            int_param = int(param)
+            if int_param < 0:
+                raise ParseError(f"{keyword} query_param must not be negative (given value: {int_param})")
+            else:
+                return int_param
+        except (ValueError, TypeError) as e:
+            raise ParseError(f"{keyword} query_param must be a positive integer (given value: {param})")
+    
+    def paginate(self, instances):
+
+        page_number = self.query_param_int("page", 1)
+        items_per_page = self.query_param_int("pagesize", 10)
+  
+        offset = (page_number - 1)*items_per_page
+
+        return instances.skip(offset).limit(items_per_page)
 
     def list(self, request):
 
@@ -44,8 +69,15 @@ class SisagenViewSet(ViewSet):
             operator_entered = Q(datamanager_id__exists=False) & Q(operatore_id=datamanager_id)
             instances = instances(is_datamanager | operator_entered)
         
-        if not instances.count():
+        if not (count := instances.count()):
             raise NotFound(f"No documents of type {self.model.__name__} found matching query criteria.")
+
+        if request.query_params.get("page"):
+            instances = self.paginate(instances)
+            return Response(dict(
+                count=count, 
+                results=to_json(instances)
+                ))
 
         return Response(to_json(instances))
     
@@ -75,8 +107,15 @@ class SisagenViewSet(ViewSet):
         
         instances = self.get_mongoquery()
         instances = instances = instances(paziente_id=pk)
-        if not instances.count():
+        if not (count := instances.count()):
             raise NotFound(f"No documents of type {self.model.__name__} found for patient with id {pk}.")
+        
+        if request.query_params.get("page"):
+            instances = self.paginate(instances)
+            return Response(dict(
+                count=count, 
+                results=to_json(instances)
+                ))
 
         return Response(to_json(instances))
     

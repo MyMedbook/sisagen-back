@@ -6,7 +6,7 @@ from rest_framework.decorators import action
 from rest_framework import status
 from rest_framework.exceptions import NotFound, ValidationError, ParseError
 from mongoengine.queryset.visitor import Q
-from authentication.permissions import SisagenPermission
+from authentication.permissions import SisagenPermission, sisagen_rank
 from api.models.base import BaseDocument
 from api.serializers.base import BaseSerializer
 from datetime import datetime
@@ -27,7 +27,17 @@ class SisagenViewSet(ViewSet):
 
     def get_mongoquery(self):
 
-        return self.model.objects().order_by('-created_at')
+        rank = sisagen_rank(self.request.user)
+
+        qset = self.model.objects()
+
+        if rank == "Sisagen_Paziente":
+            qset = qset(paziente_id=self.request.user.pk)
+
+        if rank == "Sisagen_Specialista":
+            qset = qset(operatore_id=self.request.user.pk)
+
+        return qset.order_by('-created_at')
     
     def query_param_int(self, keyword, default=None):
 
@@ -53,7 +63,7 @@ class SisagenViewSet(ViewSet):
         offset = (page_number - 1)*items_per_page
 
         return instances.skip(offset).limit(items_per_page)
-
+    
     def list(self, request):
 
         instances = self.get_mongoquery()
@@ -106,7 +116,7 @@ class SisagenViewSet(ViewSet):
     def retrieve(self, request, pk):
         
         instances = self.get_mongoquery()
-        instances = instances = instances(paziente_id=pk)
+        instances = instances(paziente_id=pk)
         if not (count := instances.count()):
             raise NotFound(f"No documents of type {self.model.__name__} found for patient with id {pk}.")
         

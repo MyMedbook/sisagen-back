@@ -2,11 +2,20 @@ from rest_framework import permissions
 
 SISAGEN_ROLES = [
     "Sisagen_Admin",
-    "Sisagen_DataManager",
-    "Sisagen_Paziente",
     "Sisagen_ResponsabileStruttura",
-    "Sisagen_Specialista"
+    "Sisagen_DataManager",
+    "Sisagen_Specialista",
+    "Sisagen_Paziente"
     ]
+
+def sisagen_rank(user):
+
+    user_groups = [role["name"] for role in user.groups]
+    for role in SISAGEN_ROLES:
+        if role in user_groups:
+            return role
+        
+    return False
 
 class SisagenPermission(permissions.BasePermission):
     """
@@ -15,12 +24,11 @@ class SisagenPermission(permissions.BasePermission):
 
     def has_permission(self, request, view):
 
-        user_groups = request.user.groups
         # Sisagen roles held by user
-        user_SGgroups = [role["name"] for role in user_groups if role["name"] in SISAGEN_ROLES]
+        sisagen_role = sisagen_rank(request.user)
 
         # deny if user is not Sisagen
-        if not user_SGgroups:
+        if not sisagen_role:
             return False
         
         # always allow for read-only methods
@@ -28,4 +36,4 @@ class SisagenPermission(permissions.BasePermission):
             return True
         
         # deny if user only has Sisagen_Paziente
-        return not user_SGgroups == ["Sisagen_Paziente"]
+        return not sisagen_role == "Sisagen_Paziente"

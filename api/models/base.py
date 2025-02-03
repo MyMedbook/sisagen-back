@@ -1,5 +1,6 @@
 # api/models/base.py
-from mongoengine import Document, IntField, DateTimeField, EnumField, StringField
+from mongoengine import (Document, IntField, DateTimeField, EnumField, StringField, 
+                         EmbeddedDocument, EmbeddedDocumentField)
 from datetime import datetime
 from enum import Enum
 
@@ -7,8 +8,9 @@ common_indices = [
             'paziente_id',
             'operatore_id',
             'datamanager_id',
-            'struttura',
-            'created_at'
+            'structure.id',
+            'created_at',
+            'updated_at'
         ]
 
 class Status(str, Enum):
@@ -16,12 +18,17 @@ class Status(str, Enum):
     COMPLETE = "complete"
     ARCHIVED = "archived"
 
+class Structure(EmbeddedDocument):
+
+    id = IntField(required=True)
+    name = StringField()
+
 class BaseDocument(Document):
     """Base document class with common fields and metadata"""
     paziente_id = IntField(required=True)
     operatore_id = IntField(required=True)
     datamanager_id = IntField()
-    struttura = StringField()
+    structure = EmbeddedDocumentField(Structure, required=True)
     status = EnumField(Status, default=Status.DRAFT)
     created_at = DateTimeField(default=datetime.utcnow)
     updated_at = DateTimeField(default=datetime.utcnow)

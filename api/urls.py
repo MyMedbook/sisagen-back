@@ -52,6 +52,7 @@ urlpatterns = [
     path('report/<pos_int:paziente_id>/', ReportView.as_view(), name='report-list'),
     path('report/<pos_int:paziente_id>/<pos_int:report_id>/', ReportView.as_view(), name='report-detail'),
     
-    # Quick report endpoint
+    # Quick report endpoints
     path('quickreport/<pos_int:paziente_id>/', QuickReportView.as_view(), name='quick-report-list'),
+    path('quickreport/all/', QuickReportAllView.as_view(), name='quick-report-all'),
 ]

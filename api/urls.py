@@ -1,15 +1,12 @@
 from django.urls import path, register_converter
-from api.views import (
-    FattoriRischioView, ComorbiditaView, SintomatologiaView,
-    CoinvolgimentoMultisistemicoView, TerapiaFarmacologicaView,
-    AnamnesiCompletaView
-)
-from api.views.ecg import ECGView
-from api.views.ecocardiogramma import EcocardiogrammaView
-from api.views.esami_laboratorio import EsamiLaboratorioView
-from api.views.genetica import GeneticaView
-from api.views.pedigree import PedigreeView
-from api.views.report import ReportView, QuickReportView, QuickReportAllView
+from rest_framework import routers
+from api.views.ecg import ECGViewSet
+from api.views.ecocardiogramma import EcocardiogrammaViewSet
+from api.views.esami_laboratorio import EsamiLaboratorioViewSet
+from api.views.genetica import GeneticaViewSet
+from api.views.pedigree import PedigreeViewSet
+from api.views.anamnesi import *
+from api.views.report import ReportView, QuickReportView
 
 # Custom path converter for positive integers
 class PositiveIntConverter:
@@ -24,41 +21,32 @@ class PositiveIntConverter:
 # Register the custom converter
 register_converter(PositiveIntConverter, 'pos_int')
 
-# URL patterns grouped by feature
-class AnamnesiURLs:
-    BASE = 'anamnesi'
-    SECTIONS = {
-        'fattori-rischio': FattoriRischioView,
-        'comorbidita': ComorbiditaView,
-        'sintomatologia': SintomatologiaView,
-        'coinvolgimento-multisistemico': CoinvolgimentoMultisistemicoView,
-        'terapia-farmacologica': TerapiaFarmacologicaView,
-    }
+router = routers.SimpleRouter()
+
+# Individual anamnesi endpoints
+router.register(r'anamnesi/fattori-rischio', FattoriRischioViewSet, basename = "fattori-rischio")
+router.register(r'anamnesi/comorbidita', ComorbiditaViewSet, basename = "comorbidita")
+router.register(r'anamnesi/sintomatologia', SintomatologiaViewSet, basename = "sintomatologia")
+router.register(r'anamnesi/coinvolgimento', CoinvolgimentoViewSet, basename = "coinvolgimento")
+router.register(r'anamnesi/terapia', TerapiaViewSet, basename = "terapia")
+
+# Referti Endpoints
+router.register(r'ecg', ECGViewSet, basename = "ecg")
+router.register(r'pedigree', PedigreeViewSet, basename = "pedigree")
+router.register(r'genetica', GeneticaViewSet, basename = "genetica")
+router.register(r'ecocardiogramma', EcocardiogrammaViewSet, basename = "ecocardiogramma")
+router.register(r'laboratorio', EsamiLaboratorioViewSet, basename = "laboratorio")
 
 urlpatterns = [
     # Individual anamnesi section endpoints
-    *[
-        path(
-            f'{AnamnesiURLs.BASE}/{section}/<pos_int:paziente_id>/',
-            view.as_view(),
-            name=f'{section}-list'
-        )
-        for section, view in AnamnesiURLs.SECTIONS.items()
-    ],
+    *router.urls,
     
     # Combined anamnesi endpoint
     path(
-        f'{AnamnesiURLs.BASE}/<pos_int:paziente_id>/',
+        f'anamnesi/<pos_int:paziente_id>/',
         AnamnesiCompletaView.as_view(),
         name='anamnesi-completa'
     ),
-    
-    # Other endpoints
-    path('ecg/<pos_int:paziente_id>/', ECGView.as_view(), name='ecg-list'),
-    path('ecocardiogramma/<pos_int:paziente_id>/', EcocardiogrammaView.as_view(), name='ecocardiogramma-list'),
-    path('esami-laboratorio/<pos_int:paziente_id>/', EsamiLaboratorioView.as_view(), name='esami-laboratorio-list'),
-    path('genetica/<pos_int:paziente_id>/', GeneticaView.as_view(), name='genetica-list'),
-    path('pedigree/<pos_int:paziente_id>/', PedigreeView.as_view(), name='pedigree-list'),
     
     # Report endpoints
     path('report/<pos_int:paziente_id>/', ReportView.as_view(), name='report-list'),

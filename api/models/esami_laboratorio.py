@@ -1,6 +1,6 @@
 # api/models/esami_laboratorio.py
 from mongoengine import Document, EmbeddedDocument, EmbeddedDocumentField, FloatField, StringField
-from .base import BaseDocument
+from .base import BaseDocument, common_indices
 
 class Bilirubina(EmbeddedDocument):
     totale = FloatField(required=True)
@@ -30,9 +30,7 @@ class EsamiLaboratorio(BaseDocument):
     meta = {
         'collection': 'esami_laboratorio',
         'indexes': [
-            'paziente_id',
-            'operatore_id',
-            'created_at',
+            *common_indices,
             ('paziente_id', 'status')
         ]
     }

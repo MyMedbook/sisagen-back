@@ -3,7 +3,7 @@
 from mongoengine import Document, EmbeddedDocument, EmbeddedDocumentField, StringField, EnumField
 from datetime import datetime
 from enum import Enum
-from .base import BaseDocument
+from .base import BaseDocument, common_indices
 
 class RitmoType(str, Enum):
     RITMO_SINUSALE = "ritmo_sinusale"
@@ -41,9 +41,7 @@ class ECG(BaseDocument):
     meta = {
         'collection': 'ecg',
         'indexes': [
-            'paziente_id',
-            'operatore_id',
-            'created_at',
+            *common_indices,
             ('paziente_id', 'status')
         ]
     }

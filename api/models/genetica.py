@@ -2,7 +2,7 @@
 from mongoengine import Document, EmbeddedDocument, EmbeddedDocumentField, StringField, EnumField
 from datetime import datetime
 from enum import Enum
-from .base import BaseDocument
+from .base import BaseDocument, common_indices
 
 class TrasmissioneType(str, Enum):
     AD = "ad"
@@ -28,9 +28,7 @@ class Genetica(BaseDocument):
     meta = {
         'collection': 'genetica',
         'indexes': [
-            'paziente_id',
-            'operatore_id',
-            'created_at',
+            *common_indices,
             ('paziente_id', 'status')
         ]
     }

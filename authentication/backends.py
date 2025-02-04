@@ -2,6 +2,7 @@
 from rest_framework import authentication
 from rest_framework import exceptions
 from rest_framework.permissions import IsAuthenticated
+import requests
 
 class TokenAuthentication(authentication.BaseAuthentication):
     def authenticate(self, request):
@@ -15,13 +16,26 @@ class TokenAuthentication(authentication.BaseAuthentication):
             auth_type, token = auth_header.split(' ')
             if auth_type.lower() != 'bearer':
                 return None
+            
+            # get user profile from main mymedbook server
+            profile_url = "https://mymedbook.it/api/v1/profile/"
+            headers = {"Authorization": auth_header}
+            response = requests.get(
+                profile_url,
+                headers=headers
+            )
+
+            content = response.json()
+            if (status := response.status_code) != 200:
+                raise Exception(f"Error during MyMedBook authentication: {content["detail"]} ({status})")
 
             # Create a user-like object with necessary attributes
             auth_user = type('AuthUser', (), {
+                **content,
                 'is_authenticated': True,
-                'is_active': True,
+                'is_active': content["active"],
                 'token': token
-            })()
+            })()            
 
             # Return both the user-like object and the auth info
             return (auth_user, {

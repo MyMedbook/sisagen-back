@@ -1,4 +1,5 @@
 # api/serializers/anamnesi.py
+from datetime import date
 from rest_framework import serializers
 from api.models import (
     Status, DislipidemiaType, FumoStatus, ObesitaType,
@@ -7,48 +8,134 @@ from api.models import (
     OcchioType, OrecchioType, SistemaMuscoloscheletricoType,
     PelleType
 )
+from api.serializers.base import BaseSerializer as BaseAnamnesisSerializer
 
-# Base Serializer for common fields
-class BaseAnamnesisSerializer(serializers.Serializer):
-    """Base serializer with common fields"""
-    paziente_id = serializers.IntegerField(required=True)
-    operatore_id = serializers.IntegerField(required=True)
-    status = serializers.ChoiceField(
-        choices=[(x.value, x.value) for x in Status], 
-        default=Status.DRAFT
-    )
-    created_at = serializers.DateTimeField(read_only=True)
-    updated_at = serializers.DateTimeField(read_only=True)
+# preprocess data for serializers with associated beginning year
+def preprocess_insorgenza(data):
+    
+    
+    if not data.get("anni"):
+        current_year = date.today().year
+        data['anni'] = current_year - data['anno_insorgenza']
+    
+    return data
 
-    def validate_paziente_id(self, value):
-        """Validate paziente_id is positive"""
-        if value <= 0:
-            raise serializers.ValidationError("paziente_id must be positive")
-        return value
+# preprocess data for serializers with associated beginning year
+def preprocess_fumo(data):
+    
+    current_year = date.today().year
+    inizio =  data.get('anno_inizio')
+    interruzione = data.get('anno_interruzione')
 
-    def validate_operatore_id(self, value):
-        """Validate operatore_id is positive"""
-        if value <= 0:
-            raise serializers.ValidationError("operatore_id must be positive")
-        return value
+    if inizio and not interruzione:
+        if not data.get("anni"): 
+            data['anni'] = current_year - inizio
+
+    if inizio and interruzione:
+        if not data.get("anni"):
+            data['anni'] = interruzione - inizio
+        if not data.get("anni_smesso"): 
+            data['anni_smesso'] = current_year - interruzione
+    
+    return data
+
 
 # Embedded Document Serializers
 class IpertensioneArteriosaSer(serializers.Serializer):
     presente = serializers.BooleanField(required=True)
-    anni = serializers.IntegerField(min_value=0, required=False)
+    anno_insorgenza = serializers.IntegerField(min_value=0, required=False, allow_null=True)
+    anni = serializers.IntegerField(min_value=0, required=False, allow_null=True)
+
+    def to_internal_value(self, data):
+
+        try:
+            data['anno_insorgenza']
+        except KeyError:
+            pass
+        else:
+            if not data['presente'] and data['anno_insorgenza']:
+                raise serializers.ValidationError(
+                    "Anno Insorgenza non deve essere inserito se Ipertensione Arteriosa non è presente."
+                )
+            
+        if data['presente']:
+            data = preprocess_insorgenza(data)
+
+        return super().to_internal_value(data)
 
 class DislipidemiaSer(serializers.Serializer):
     tipo = serializers.ChoiceField(choices=[(x.value, x.value) for x in DislipidemiaType])
-    anni = serializers.IntegerField(min_value=0, required=False)
+    anno_insorgenza = serializers.IntegerField(min_value=0, required=False, allow_null=True)
+    anni = serializers.IntegerField(min_value=0, required=False, allow_null=True)
+
+    def to_internal_value(self, data):
+
+        try:
+            data['anno_insorgenza']
+        except KeyError:
+            pass
+        else:
+            if data['tipo'] == DislipidemiaType.NO and data['anno_insorgenza']:
+                raise serializers.ValidationError(
+                    "Anno Insorgenza non deve essere inserito se Dislipidemia non è presente."
+                )
+            
+        if not data['tipo'] == DislipidemiaType.NO:
+            data = preprocess_insorgenza(data)
+
+        return super().to_internal_value(data)
 
 class DiabeteMellitoSer(serializers.Serializer):
     presente = serializers.BooleanField(required=True)
-    anni = serializers.IntegerField(min_value=0, required=False)
+    anno_insorgenza = serializers.IntegerField(min_value=0, required=False, allow_null=True)
+    anni = serializers.IntegerField(min_value=0, required=False, allow_null=True)
+
+    def to_internal_value(self, data):
+        try:
+            data['anno_insorgenza']
+        except KeyError:
+            pass
+        else:
+            if not data['presente'] and data['anno_insorgenza']:
+                raise serializers.ValidationError(
+                    "Anno Insorgenza non deve essere inserito se Diabete Mellito non è presente."
+                )
+        if data['presente']:
+            data = preprocess_insorgenza(data)
+
+        return super().to_internal_value(data)
 
 class FumoSer(serializers.Serializer):
     stato = serializers.ChoiceField(choices=[(x.value, x.value) for x in FumoStatus])
-    anni = serializers.IntegerField(min_value=0, required=False)
-    anni_smesso = serializers.IntegerField(min_value=0, required=False)
+    anno_inizio = serializers.IntegerField(min_value=0, required=False, allow_null=True)
+    anno_interruzione = serializers.IntegerField(min_value=0, required=False, allow_null=True)
+    anni = serializers.IntegerField(min_value=0, required=False, allow_null=True)
+    anni_smesso = serializers.IntegerField(min_value=0, required=False, allow_null=True)
+
+    def to_internal_value(self, data):
+
+        try:
+            data['anno_inizio']
+        except KeyError:
+            pass
+        else:
+            if data['stato'] == FumoStatus.NO and data['anno_inizio']:
+                raise serializers.ValidationError(
+                    "Anno Inizio non deve essere inserito se il/la paziente non è fumatore."
+                )
+
+        try:
+            data['anno_interruzione']
+        except KeyError:
+            pass
+        else:  
+            if data['stato'] != FumoStatus.PASSATO and data['anno_interruzione']:
+                raise serializers.ValidationError(
+                    "Anno Interruzione non deve essere inserito se il/la paziente è ancora fumatore o non lo è mai stato."
+                )
+        
+        data = preprocess_fumo(data)
+        return super().to_internal_value(data)
 
 # Main Document Serializers
 class FattoriRischioSer(BaseAnamnesisSerializer):
@@ -71,7 +158,7 @@ class AnemiaSer(serializers.Serializer):
     tipo = serializers.CharField(required=False)
 
 class ComorbiditaSer(BaseAnamnesisSerializer):
-    malattia_renale_cronica = MalattiaRenaleCronicaSer()
+    malattia_renale = MalattiaRenaleCronicaSer()
     bpco = serializers.BooleanField()
     steatosi_epatica = SteatosiEpaticaSer()
     anemia = AnemiaSer()

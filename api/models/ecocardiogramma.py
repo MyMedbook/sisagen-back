@@ -1,6 +1,6 @@
 # api/models/ecocardiogramma.py
 from mongoengine import Document, EmbeddedDocument, EmbeddedDocumentField, FloatField
-from .base import BaseDocument
+from .base import BaseDocument, common_indices
 
 class GradientePressorio(EmbeddedDocument):
     medio = FloatField(required=True)
@@ -23,9 +23,7 @@ class Ecocardiogramma(BaseDocument):
     meta = {
         'collection': 'ecocardiogramma',
         'indexes': [
-            'paziente_id',
-            'operatore_id',
-            'created_at',
+            *common_indices,
             ('paziente_id', 'status')
         ]
     }

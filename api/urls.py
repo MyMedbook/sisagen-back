@@ -6,7 +6,7 @@ from api.views.esami_laboratorio import EsamiLaboratorioViewSet
 from api.views.genetica import GeneticaViewSet
 from api.views.pedigree import PedigreeViewSet
 from api.views.anamnesi import *
-from api.views.report import ReportView, QuickReportView
+from api.views.report import ReportView, QuickReportView, QuickReportAllView
 
 # Custom path converter for positive integers
 class PositiveIntConverter:

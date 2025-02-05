@@ -27,7 +27,7 @@ class TokenAuthentication(authentication.BaseAuthentication):
 
             content = response.json()
             if (status := response.status_code) != 200:
-                raise Exception(f"Error during MyMedBook authentication: {content["detail"]} ({status})")
+                raise Exception(f"Error during MyMedBook authentication: {content['detail']} ({status})")
 
             # Create a user-like object with necessary attributes
             auth_user = type('AuthUser', (), {

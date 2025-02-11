@@ -38,7 +38,7 @@ class AnamnesiViewSet(SisagenViewSet):
         instance.save()
 
         return Response(
-            to_json(instance),
+            validated_data,
             status.HTTP_201_CREATED
                 )
 

@@ -30,8 +30,8 @@ class BaseDocument(Document):
     datamanager_id = IntField()
     structure = EmbeddedDocumentField(Structure, required=True)
     status = EnumField(Status, default=Status.DRAFT)
-    created_at = DateTimeField(default=datetime.utcnow)
-    updated_at = DateTimeField(default=datetime.utcnow)
+    created_at = DateTimeField(default=datetime.now)
+    updated_at = DateTimeField(default=datetime.now)
 
     meta = {
         'abstract': True,
@@ -40,7 +40,7 @@ class BaseDocument(Document):
 
     def save(self, *args, **kwargs):
         """Update updated_at timestamp on every save"""
-        self.updated_at = datetime.utcnow()
+        self.updated_at = datetime.now()
         return super().save(*args, **kwargs)
 
     def validate_patient(self):

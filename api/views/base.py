@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework import status
 from rest_framework.exceptions import NotFound, ValidationError, ParseError
+from rest_framework.pagination import PageNumberPagination
 from mongoengine.queryset.visitor import Q
 from authentication.permissions import SisagenPermission, sisagen_rank
 from api.models.base import BaseDocument
@@ -18,12 +19,28 @@ logger = logging.getLogger(__name__)
 def to_json(query):
     return loads(query.to_json())
 
+class ReportPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'pagesize'
+    max_page_size = 100
+
 
 class SisagenViewSet(ViewSet):
 
     permission_classes = [SisagenPermission]
     model: BaseDocument = None
     serializer_class: BaseSerializer = None
+    pagination_class = ReportPagination
+
+    def get_paginated_response(self, data):
+        """Helper method to get paginated response"""
+        paginator = self.pagination_class()
+        page = paginator.paginate_queryset(data, self.request)
+        if page is not None:
+            serializer = self.serializer_class(page, many=True)
+            return paginator.get_paginated_response(serializer.data)
+        serializer = self.serializer_class(data, many=True)
+        return Response(serializer.data)
 
     def get_mongoquery(self):
 
@@ -39,30 +56,6 @@ class SisagenViewSet(ViewSet):
 
         return qset.order_by('-created_at')
     
-    def query_param_int(self, keyword, default=None):
-
-        param = self.request.query_params.get(keyword, default)
-
-        if not param:
-            return None
-        
-        try:
-            int_param = int(param)
-            if int_param < 0:
-                raise ParseError(f"{keyword} query_param must not be negative (given value: {int_param})")
-            else:
-                return int_param
-        except (ValueError, TypeError) as e:
-            raise ParseError(f"{keyword} query_param must be a positive integer (given value: {param})")
-    
-    def paginate(self, instances):
-
-        page_number = self.query_param_int("page", 1)
-        items_per_page = self.query_param_int("pagesize", 10)
-  
-        offset = (page_number - 1)*items_per_page
-
-        return instances.skip(offset).limit(items_per_page)
     
     def list(self, request):
 
@@ -79,17 +72,11 @@ class SisagenViewSet(ViewSet):
             operator_entered = Q(datamanager_id__exists=False) & Q(operatore_id=datamanager_id)
             instances = instances(is_datamanager | operator_entered)
         
-        if not (count := instances.count()):
+        if not instances.count():
             raise NotFound(f"No documents of type {self.model.__name__} found matching query criteria.")
+        
+        return self.get_paginated_response(instances)
 
-        if request.query_params.get("page"):
-            instances = self.paginate(instances)
-            return Response(dict(
-                count=count, 
-                results=to_json(instances)
-                ))
-
-        return Response(to_json(instances))
     
     def create(self, request):
 
@@ -107,9 +94,10 @@ class SisagenViewSet(ViewSet):
         except ValidationError as e:
             Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         instance.save()
-    
+        
+        # note: returned data lacks updates performed during BaseDocument.save()
         return Response(
-            to_json(instance),
+            serializer.data,
             status.HTTP_201_CREATED
             )
     
@@ -120,25 +108,21 @@ class SisagenViewSet(ViewSet):
         if not (count := instances.count()):
             raise NotFound(f"No documents of type {self.model.__name__} found for patient with id {pk}.")
         
-        if request.query_params.get("page"):
-            instances = self.paginate(instances)
-            return Response(dict(
-                count=count, 
-                results=to_json(instances)
-                ))
+        return self.get_paginated_response(instances)
 
-        return Response(to_json(instances))
     
     @action(detail=True)
     def latest(self, request, pk):
         
         instances = self.get_mongoquery()
-        instances = instances = instances(paziente_id=pk)
+        instances = instances(paziente_id=pk)
 
         if not instances.count():
             raise NotFound(f"No documents of type {self.model.__name__} found for patient with id {pk}.")
+        
+        serializer = self.serializer_class(instances.first())
 
-        return Response(to_json(instances.first()))
+        return Response(serializer.data)
 
 
 class BaseSisagenView(APIView):

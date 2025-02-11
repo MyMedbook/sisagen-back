@@ -2,18 +2,14 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import NotFound, ValidationError
-from rest_framework.pagination import PageNumberPagination
 from api.models.report import Report
 from api.serializers.report import ReportSerializer, QuickReportSerializer
+from api.views.base import ReportPagination
 from collections import defaultdict
 import logging
 
 logger = logging.getLogger(__name__)
 
-class ReportPagination(PageNumberPagination):
-    page_size = 10
-    page_size_query_param = 'page_size'
-    max_page_size = 100
 
 class ReportView(APIView):
     """
@@ -67,6 +63,7 @@ class ReportView(APIView):
                 paziente_cognome=request.data.get('paziente_cognome'),
                 operatore_nome=request.data.get('operatore_nome'),
                 operatore_cognome=request.data.get('operatore_cognome'),
+                structure=request.data.get('structure'),
                 report_id=Report.get_next_report_id(paziente_id)
             )
 

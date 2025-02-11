@@ -14,36 +14,10 @@ from api.serializers import (
     CoinvolgimentoMultisistemicoSer, TerapiaFarmacologicaSer,
     AnamnesiCompletaSer
 )
-from api.views.base import SisagenViewSet, to_json
+from api.views.base import SisagenViewSet
 
 
-class AnamnesiViewSet(SisagenViewSet):
-
-    embedded_fields = {}
-
-    def create(self, request):
-        data = request.data.copy()
-        serializer = self.serializer_class(data=data, context={'request': request})
-        if not serializer.is_valid():
-                return Response(
-                    serializer.errors, 
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-        
-        validated_data = serializer.validated_data
-        for key, field_model in self.embedded_fields.items():
-            validated_data[key] = field_model(**validated_data[key])
-
-        instance = self.model(**validated_data)
-        instance.save()
-
-        return Response(
-            validated_data,
-            status.HTTP_201_CREATED
-                )
-
-
-class FattoriRischioViewSet(AnamnesiViewSet):
+class FattoriRischioViewSet(SisagenViewSet):
      
     model = FattoriRischio
     serializer_class = FattoriRischioSer
@@ -55,7 +29,7 @@ class FattoriRischioViewSet(AnamnesiViewSet):
     }
 
 
-class ComorbiditaViewSet(AnamnesiViewSet):
+class ComorbiditaViewSet(SisagenViewSet):
      
     model = Comorbidita
     serializer_class = ComorbiditaSer
@@ -66,7 +40,7 @@ class ComorbiditaViewSet(AnamnesiViewSet):
     }
 
 
-class SintomatologiaViewSet(AnamnesiViewSet):
+class SintomatologiaViewSet(SisagenViewSet):
      
     model = Sintomatologia
     serializer_class = SintomatologiaSer
@@ -79,14 +53,14 @@ class SintomatologiaViewSet(AnamnesiViewSet):
     }
 
 
-class CoinvolgimentoViewSet(AnamnesiViewSet):
+class CoinvolgimentoViewSet(SisagenViewSet):
      
     model = CoinvolgimentoMultisistemico
     serializer_class = CoinvolgimentoMultisistemicoSer
     embedded_fields = {}
 
 
-class TerapiaViewSet(AnamnesiViewSet):
+class TerapiaViewSet(SisagenViewSet):
      
     model = TerapiaFarmacologica
     serializer_class = TerapiaFarmacologicaSer
@@ -96,22 +70,22 @@ class TerapiaViewSet(AnamnesiViewSet):
 class AnamnesiCompletaView(APIView):
     """View for handling complete anamnesis records"""
     
-    def _get_latest(self, model, patient_id):
+    def _get_latest(self, model, serializer, patient_id):
 
         obj = model.objects(paziente_id=patient_id).order_by('-created_at').first()
         if not obj:
             return None
         
-        return to_json(obj)
+        return serializer(obj).data
         
     def _get_all_records(self, patient_id):
         """Helper method to fetch all anamnesis records with consistent key names"""
         records = {
-            'fattori_rischio': self._get_latest(FattoriRischio, patient_id),
-            'comorbidita': self._get_latest(Comorbidita, patient_id),
-            'sintomatologia': self._get_latest(Sintomatologia, patient_id),
-            'coinvolgimento_multisistemico': self._get_latest(CoinvolgimentoMultisistemico, patient_id),
-            'terapia_farmacologica': self._get_latest(TerapiaFarmacologica, patient_id)
+            'fattori_rischio': self._get_latest(FattoriRischio, FattoriRischioSer, patient_id),
+            'comorbidita': self._get_latest(Comorbidita, ComorbiditaSer, patient_id),
+            'sintomatologia': self._get_latest(Sintomatologia, SintomatologiaSer, patient_id),
+            'coinvolgimento_multisistemico': self._get_latest(CoinvolgimentoMultisistemico, CoinvolgimentoMultisistemicoSer, patient_id),
+            'terapia_farmacologica': self._get_latest(TerapiaFarmacologica, TerapiaFarmacologicaSer, patient_id)
         }
 
         if all(v is None for v in records.values()):
@@ -124,8 +98,8 @@ class AnamnesiCompletaView(APIView):
 
         records = self._get_all_records(paziente_id)
 
-        created_at = min(record["created_at"]["$date"] for record in records.values() if not record is None)
-        updated_at = max(record["updated_at"]["$date"] for record in records.values() if not record is None)
+        created_at = min(record["created_at"] for record in records.values() if not record is None)
+        updated_at = max(record["updated_at"] for record in records.values() if not record is None)
 
         data = {
             'paziente_id': paziente_id,

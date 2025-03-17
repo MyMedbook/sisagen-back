@@ -11,3 +11,4 @@ venv/
 staticfiles/
 media/
 *.log
+.obsidian

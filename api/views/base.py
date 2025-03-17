@@ -1,4 +1,5 @@
 # api/views/base.py
+import requests
 from rest_framework.views import APIView
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
@@ -81,6 +82,24 @@ class SisagenViewSet(ViewSet):
     def create(self, request):
 
         data = request.data.copy()
+
+        query_params = "&".join([f"{param}={data[param]}"
+                                 for param in ["paziente_id", "operatore_id", "structure_id"]])
+        verification_url = f"https://mymedbook.it/api/v1/sisagen/verification/?{query_params}"
+
+        auth_header = request.META.get('HTTP_AUTHORIZATION')
+        headers = {"Authorization": auth_header}
+
+        verify_response = requests.get(
+                verification_url,
+                headers=headers
+            )
+
+        if verify_response.status_code != 200:
+            return Response(verify_response.json(), status=verify_response.status_code)
+        
+        data["structure"] = verify_response.json()["structure"]
+
         serializer = self.serializer_class(data=data, context={'request': request})
         if not serializer.is_valid():
                 return Response(

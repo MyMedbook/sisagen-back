@@ -8,7 +8,7 @@ common_indices = [
             'paziente_id',
             'operatore_id',
             'datamanager_id',
-            'structure.id',
+            'structure.pk',
             'created_at',
             'updated_at'
         ]
@@ -20,8 +20,16 @@ class Status(str, Enum):
 
 class Structure(EmbeddedDocument):
 
-    id = IntField(required=True)
+    pk = IntField(required=True)
     name = StringField()
+    max_members = StringField()
+    max_affiliates = StringField()
+    label = StringField()
+    mobile_number = StringField()
+    phone_number = StringField()
+    code_type = StringField()
+    created = DateTimeField()
+    updated = DateTimeField()
 
 class BaseDocument(Document):
     """Base document class with common fields and metadata"""

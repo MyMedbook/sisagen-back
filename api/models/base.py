@@ -28,8 +28,8 @@ class Structure(EmbeddedDocument):
     mobile_number = StringField()
     phone_number = StringField()
     code_type = StringField()
-    created = DateTimeField()
-    updated = DateTimeField()
+    created = StringField()
+    updated = StringField()
 
 class BaseDocument(Document):
     """Base document class with common fields and metadata"""

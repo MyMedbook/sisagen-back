@@ -5,27 +5,17 @@ from api.models.base import Status
 
 class StructureSerializer(serializers.Serializer):
     """Base serializer for Sisagen Structures"""
-    id = serializers.IntegerField(required=True)
-    name = serializers.CharField()
-
-    def to_internal_value(self, data):
-
-        id = data['id']
-        structure_url = f"https://mymedbook.it/api/v1/structure/{id}/?label=sisagen"
-        auth_header = self.context["request"].META.get('HTTP_AUTHORIZATION')
-        headers = {"Authorization": auth_header}
-
-        struct_response = requests.get(
-                structure_url,
-                headers=headers
-            )
-        
-        if struct_response.status_code == 404:
-            raise serializers.ValidationError(f"No Sisagen structure found with id {id}")
-        
-        data["name"] = struct_response.json()["name"]
-
-        return super().to_internal_value(data)
+    pk = serializers.IntegerField(required=True)
+    name = serializers.CharField(required=True)
+    max_members = serializers.CharField(allow_blank=True, allow_null=True)
+    max_affiliates = serializers.CharField(allow_blank=True, allow_null=True)
+    label = serializers.CharField()
+    mobile_number = serializers.CharField(allow_blank=True)
+    phone_number = serializers.CharField(allow_blank=True)
+    code_type = serializers.CharField(allow_blank=True)
+    created = serializers.DateTimeField()
+    updated = serializers.DateTimeField(required=False)
+ 
 
 class BaseSerializer(serializers.Serializer):
     """Base serializer with common fields"""

@@ -13,8 +13,7 @@ from api.serializers.base import BaseSerializer as BaseAnamnesisSerializer
 # preprocess data for serializers with associated beginning year
 def preprocess_insorgenza(data):
     
-    
-    if not data.get("anni"):
+    if not data.get("anni") and data.get("anno_insorgenza"):
         current_year = date.today().year
         data['anni'] = current_year - data['anno_insorgenza']
     
@@ -23,19 +22,19 @@ def preprocess_insorgenza(data):
 # preprocess data for serializers with associated beginning year
 def preprocess_fumo(data):
     
-    current_year = date.today().year
-    inizio =  data.get('anno_inizio')
-    interruzione = data.get('anno_interruzione')
+    # current_year = date.today().year
+    # inizio =  data.get('anno_inizio')
+    # interruzione = data.get('anno_interruzione')
 
-    if inizio and not interruzione:
-        if not data.get("anni"): 
-            data['anni'] = current_year - inizio
+    # if inizio and not interruzione:
+    #     if not data.get("anni"): 
+    #         data['anni'] = current_year - inizio
 
-    if inizio and interruzione:
-        if not data.get("anni"):
-            data['anni'] = interruzione - inizio
-        if not data.get("anni_smesso"): 
-            data['anni_smesso'] = current_year - interruzione
+    # if inizio and interruzione:
+    #     if not data.get("anni"):
+    #         data['anni'] = interruzione - inizio
+    #     if not data.get("anni_smesso"): 
+    #         data['anni_smesso'] = current_year - interruzione
     
     return data
 
@@ -47,16 +46,6 @@ class IpertensioneArteriosaSer(serializers.Serializer):
     anni = serializers.IntegerField(min_value=0, required=False, allow_null=True)
 
     def to_internal_value(self, data):
-
-        try:
-            data['anno_insorgenza']
-        except KeyError:
-            pass
-        else:
-            if not data['presente'] and data['anno_insorgenza']:
-                raise serializers.ValidationError(
-                    "Anno Insorgenza non deve essere inserito se Ipertensione Arteriosa non è presente."
-                )
             
         if data['presente']:
             data = preprocess_insorgenza(data)

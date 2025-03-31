@@ -113,10 +113,12 @@ class SisagenViewSet(ViewSet):
         except ValidationError as e:
             Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         instance.save()
+
+        nu_serializer = self.serializer_class(instance)
         
         # note: returned data lacks updates performed during BaseDocument.save()
         return Response(
-            serializer.data,
+            nu_serializer.data,
             status.HTTP_201_CREATED
             )
     

@@ -59,7 +59,7 @@ class PdfMixin:
         
         pdf.generate()
         
-        fname = "{report} {name} {date}".format(
+        fname = "{report} {name} {date}.pdf".format(
             report=self.__class__.__name__[:-7],
             name= f"{patient['first_name']} {patient['last_name']}",
             date=report["created_at"][:10]

@@ -11,6 +11,7 @@ from mongoengine.queryset.visitor import Q
 from authentication.permissions import SisagenPermission, sisagen_rank
 from api.models.base import BaseDocument
 from api.serializers.base import BaseSerializer
+from api.rendering import PdfMixin
 from datetime import datetime
 from json import loads
 import logging
@@ -26,12 +27,13 @@ class ReportPagination(PageNumberPagination):
     max_page_size = 100
 
 
-class SisagenViewSet(ViewSet):
+class SisagenViewSet(ViewSet, PdfMixin):
 
     permission_classes = [SisagenPermission]
     model: BaseDocument = None
     serializer_class: BaseSerializer = None
     pagination_class = ReportPagination
+    pdf_renderer = None
 
     def get_paginated_response(self, data):
         """Helper method to get paginated response"""
@@ -98,7 +100,11 @@ class SisagenViewSet(ViewSet):
         if verify_response.status_code != 200:
             return Response(verify_response.json(), status=verify_response.status_code)
         
-        data["structure"] = verify_response.json()["structure"]
+        verification = verify_response.json()
+        data["structure"] = verification["structure"]
+        operator = verification["operator"]
+        patient = verification["patient"]
+        dossier_id = verification["dossier_id"]
 
         serializer = self.serializer_class(data=data, context={'request': request})
         if not serializer.is_valid():
@@ -112,13 +118,15 @@ class SisagenViewSet(ViewSet):
             instance.validate()
         except ValidationError as e:
             Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        instance.save()
+        # instance.save()
 
         nu_serializer = self.serializer_class(instance)
+        report = nu_serializer.data
+
+        document_response = self.render_report(operator, patient, report, dossier_id)
         
-        # note: returned data lacks updates performed during BaseDocument.save()
         return Response(
-            nu_serializer.data,
+            dict(**nu_serializer.data, document=document_response.json()),
             status.HTTP_201_CREATED
             )
     

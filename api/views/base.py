@@ -118,7 +118,7 @@ class SisagenViewSet(ViewSet, PdfMixin):
             instance.validate()
         except ValidationError as e:
             Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        # instance.save()
+        instance.save()
 
         nu_serializer = self.serializer_class(instance)
         report = nu_serializer.data

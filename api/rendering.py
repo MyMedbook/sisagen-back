@@ -48,7 +48,7 @@ class PdfMixin:
         pdf = PDFDocument(f)
         pdf.init_report()
 
-    
+        renderjson(pdf, "Generato da:", "PDFDocument")
         renderjson(pdf, "Struttura", f"{report.get('structure').get('name')}")
         renderjson(pdf, "Specialista", f"Dr. {operator['first_name']} {operator['last_name']}")
         renderjson(pdf, "Paziente", f"{patient['first_name']} {patient['last_name']}")

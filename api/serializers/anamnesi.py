@@ -13,10 +13,6 @@ from api.serializers.base import BaseSerializer as BaseAnamnesisSerializer
 # preprocess data for serializers with associated beginning year
 def preprocess_insorgenza(data):
     
-    if not data.get("anni") and data.get("anno_insorgenza"):
-        current_year = date.today().year
-        data['anni'] = current_year - data['anno_insorgenza']
-    
     return data
 
 # preprocess data for serializers with associated beginning year

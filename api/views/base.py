@@ -78,6 +78,10 @@ class SisagenViewSet(ViewSet, PdfMixin):
         if not instances.count():
             raise NotFound(f"No documents of type {self.model.__name__} found matching query criteria.")
         
+        if request.query_params.get('no_pagination'):
+            serializer = self.serializer_class(instances, many=True)
+            return Response(serializer.data)
+
         return self.get_paginated_response(instances)
 
     

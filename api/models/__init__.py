@@ -11,7 +11,13 @@ from .anamnesifields import (
     PelleType
 )
 
-from .base import Status
+from .ecg import ECG
+from .ecocardiogramma import Ecocardiogramma
+from .esami_laboratorio import EsamiLaboratorio
+from .genetica import Genetica
+from .pedigree import Pedigree
+
+from .base import Status, BaseDocument
 
 __all__ = [
     'FattoriRischio',
@@ -20,6 +26,7 @@ __all__ = [
     'CoinvolgimentoMultisistemico',
     'TerapiaFarmacologica',
     'Status',
+    'BaseDocument',
     'DislipidemiaType',
     'FumoStatus',
     'ObesitaType',
@@ -32,5 +39,10 @@ __all__ = [
     'OcchioType',
     'OrecchioType',
     'SistemaMuscoloscheletricoType',
-    'PelleType'
+    'PelleType',
+    'ECG',
+    'Ecocardiogramma',
+    "EsamiLaboratorio",
+    'Genetica',
+    'Pedigree'
 ]

@@ -3,12 +3,40 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import NotFound, ValidationError
 from api.models.report import Report
+from api.models import *
 from api.serializers.report import ReportSerializer, QuickReportSerializer
 from api.views.base import ReportPagination
 from collections import defaultdict
+from datetime import datetime, timedelta
 import logging
 
 logger = logging.getLogger(__name__)
+
+class VerificationView(APIView):
+
+    def get_latest(self, pk, model):
+        latest: BaseDocument = model.objects(paziente_id=pk).order_by('-created_at').first()
+        if not latest:
+            return False
+        target_date = datetime.now() - timedelta(days=180)
+        return latest.created_at > target_date
+
+    def get(self, request, paziente_id):
+
+        tabs = {
+            "anamnesi/fattori-rischio": FattoriRischio,
+            "anamnesi/comorbidita": Comorbidita,
+            "anamnesi/sintomatologia": Sintomatologia,
+            "anamnesi/coinvolgimento": CoinvolgimentoMultisistemico,
+            "anamnesi/terapia": TerapiaFarmacologica,
+            "ecg": ECG,
+            "ecocardiogramma": Ecocardiogramma,
+            "esami_laboratorio": EsamiLaboratorio,
+            "genetica": Genetica,
+            "pedigree": Pedigree
+        }
+        verification = {tab: self.get_latest(paziente_id, model) for tab, model in tabs.items()}
+        return Response(verification)
 
 
 class ReportView(APIView):

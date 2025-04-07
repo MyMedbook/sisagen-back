@@ -6,7 +6,7 @@ from api.views.esami_laboratorio import EsamiLaboratorioViewSet
 from api.views.genetica import GeneticaViewSet
 from api.views.pedigree import PedigreeViewSet
 from api.views.anamnesi import *
-from api.views.report import ReportView, QuickReportView, QuickReportAllView
+from api.views.report import VerificationView, ReportView, QuickReportView, QuickReportAllView
 
 # Custom path converter for positive integers
 class PositiveIntConverter:
@@ -47,7 +47,8 @@ urlpatterns = [
         AnamnesiCompletaView.as_view(),
         name='anamnesi-completa'
     ),
-    
+    # verification endpoint
+    path('verification/<pos_int:paziente_id>/', VerificationView.as_view(), name='report-verification'),
     # Report endpoints
     path('report/<pos_int:paziente_id>/', ReportView.as_view(), name='report-list'),
     path('report/<pos_int:paziente_id>/<pos_int:report_id>/', ReportView.as_view(), name='report-detail'),

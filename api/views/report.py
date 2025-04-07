@@ -24,11 +24,11 @@ class VerificationView(APIView):
     def get(self, request, paziente_id):
 
         tabs = {
-            "anamnesi/fattori-rischio": FattoriRischio,
-            "anamnesi/comorbidita": Comorbidita,
-            "anamnesi/sintomatologia": Sintomatologia,
-            "anamnesi/coinvolgimento": CoinvolgimentoMultisistemico,
-            "anamnesi/terapia": TerapiaFarmacologica,
+            "fattori-rischio": FattoriRischio,
+            "comorbidita": Comorbidita,
+            "sintomatologia": Sintomatologia,
+            "coinvolgimento": CoinvolgimentoMultisistemico,
+            "terapia": TerapiaFarmacologica,
             "ecg": ECG,
             "ecocardiogramma": Ecocardiogramma,
             "esami_laboratorio": EsamiLaboratorio,

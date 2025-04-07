@@ -10,7 +10,7 @@ class BilirubinaSerializer(serializers.Serializer):
 
     def validate(self, data):
         """Validate that indiretta equals totale minus diretta"""
-        if abs(data['totale'] - data['diretta'] - data['indiretta']) > 0.001:
+        if abs(data['totale'] - data['diretta'] - data['indiretta']) > 0.01:
             raise serializers.ValidationError(
                 "La bilirubina indiretta deve essere uguale alla differenza tra totale e diretta"
             )

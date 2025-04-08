@@ -31,7 +31,7 @@ class VerificationView(APIView):
             "terapia": TerapiaFarmacologica,
             "ecg": ECG,
             "ecocardiogramma": Ecocardiogramma,
-            "esami_laboratorio": EsamiLaboratorio,
+            "laboratorio": EsamiLaboratorio,
             "genetica": Genetica,
             "pedigree": Pedigree
         }
